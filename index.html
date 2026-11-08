@@ -179,6 +179,7 @@ var LEVELS=[
  {cap:'A cat. A pit. Both bad.',w:'wind',rows:[WALL,E,E,E,E,E,'#P..rc.r......D#','#####ff###ff####','#####^^###^^####']},
  {cap:'Mail call.',w:'wind',rows:[WALL,E,E,E,'#..........r...#',E,'#P.r.r.m...s..D#',WALL,WALL]},
  {cap:'Cat nap.',w:'rain',rows:[WALL,E,E,E,E,'#...r.......r..#','#P....s....c..D#',WALL,WALL]},
+ {cap:'A walk in the park.',w:'sun',rows:[WALL,E,E,E,E,E,'#P.....b......D#',WALL,WALL]},
  {cap:'Free shower.',w:'rain',rows:[WALL,E,'#.......r......#','#............D.#','#..........#####',E,'#P...o...w.....#',WALL,WALL]},
  {cap:'Walkies.',w:'rain',rows:[WALL,E,E,E,'#......r.......#','#.........b....#','#P..o.Z.s.....D#','#########ff#####','#########^^#####']},
  {cap:'Special delivery. Now with water.',w:'dusk',rows:[WALL,'#.......k......#',E,E,'#.r..r.........#',E,'#P...m....ws.D.#',WALL,WALL]},
@@ -189,6 +190,7 @@ var LEVELS=[
  {cap:'Bridge work.',w:'rain',rows:[WALL,E,E,E,E,E,'#Prx.xr.......D#','#######.....####','#######^^^^^####']},
  {cap:'Two floors.',w:'cloud',rows:[WALL,E,E,'#P....c....r...#','###########....#','#.....r........#','#.D.....c..s...#',WALL,WALL]},
  {cap:'Leash, round two.',w:'dusk',rows:[WALL,E,E,E,'#.....Z........#','#....###.......#','#P.x.#....c.s.D#',WALL,WALL]},
+ {cap:'Short one.',w:'cloud',rows:[WALL,E,E,E,E,E,'#P...D.........#',WALL,WALL]},
  {cap:'Up and over.',w:'rain',rows:[WALL,E,E,'#.............D#','#..........c.###','#..r..r..#######','#P.x.....#######',WALL,WALL]},
  {cap:'Boing.',w:'sun',rows:[WALL,E,E,'#.......b......#','#.......#......#','#.......#......#','#P...S..#^^...D#',WALL,WALL]},
  {cap:'Press here.',w:'rain',rows:[WALL,E,E,'#........G.....#','#........G.....#','#........G.....#','#P.x.u...G.c.sD#',WALL,WALL]},
@@ -199,6 +201,7 @@ var LEVELS=[
  {cap:'Boing, boing.',w:'cloud',rows:[WALL,'#...........D..#','#.........######','#........S.....#','#....######....#',E,'#P.S.^^^^^^^^^.#',WALL,WALL]},
  {cap:'Treadmill.',w:'sun',rows:[WALL,E,E,E,E,E,'#P.....s...^^.D#','###>>>>>>>>#####',WALL]},
  {cap:'Through the roof.',w:'cloud',rows:[WALL,'#.......D......#','#...======.....#','#....S.........#','#.=====........#',E,'#P.S.^^^^^^^^^.#',WALL,WALL]},
+ {cap:'Intermission.',w:'dusk',rows:[WALL,E,E,E,E,'#.......b......#','#P............D#',WALL,WALL]},
  {cap:'Wrong way.',w:'wind',rows:[WALL,E,E,E,E,E,'#P...s.....c..D#','####<<<<<<<#####',WALL]},
  {cap:'Dark delivery.',w:'night',rows:[WALL,E,'#..........L...#','#..........L...#','#..........L...#','#.......K......#','#P..m..##..L.sD#',WALL,WALL]},
  {cap:'Puppy on the belt.',w:'dusk',rows:[WALL,E,E,E,E,E,'#Py..s....^^..D#','###>>>>>>>>>>###',WALL]},
@@ -595,6 +598,11 @@ var NARR={
   34:['Puppy and the gate. Teamwork. Mostly yours.'],
   35:['Last one. Everything at once. I believe in you. Slightly.']
 };
+(function(){var N2={},INS=[11, 22, 33];Object.keys(NARR).forEach(function(k){k=+k;var sh=0;INS.forEach(function(p,j){if(k>=p-j)sh++;});N2[k+sh]=NARR[k];});
+N2[11]=['Nothing here. I checked twice.','No spikes. No cats. I am suspicious too.','Just enjoy the walk. Smell something.'];
+N2[22]=['I made this one short. Do not thank me.','The mailman is on a break. So am I.'];
+N2[33]=['Intermission. Please return to your seats.','Buy a bone in the lobby. Dogs eat free.','Okay, enough. Back to work.'];
+NARR=N2;})();
 var WINLINES=['Level complete. I am as surprised as you are.','Look at you. A professional.','Treat? No. Moving on.','Not bad. For a dog.'];
 var MILE={5:'Five deaths. A personal record? Sure, let us say yes.',10:'Ten deaths. At this point it is a hobby.',25:'25 deaths. The cat is making popcorn.',50:'50 deaths. I am calling the vet. For me.',100:'100 deaths. Honestly, impressive.'};
 var M={
