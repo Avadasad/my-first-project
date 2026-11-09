@@ -163,7 +163,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 try{var tg=window.Telegram&&window.Telegram.WebApp;if(tg){tg.ready();tg.expand();if(tg.disableVerticalSwipes)tg.disableVerticalSwipes();try{tg.setHeaderColor('#0e2a30');tg.setBackgroundColor('#0e2a30');}catch(e){}}}catch(e){}
 
 /* ======================= CORE (no DOM) ======================= */
-var GW=16,GH=9,DT=1/60,HN=28,SPRING=16,BELT=2.6;
+var GW=16,GH=9,DT=1/60,HN=28,SPRING=16,BELT=2.6,GUST=2.6;
 var PW=0.62,PH=0.62,GRAV=38,JUMP=11.2,SPEED=5.6,MAXFALL=18;
 
 var E='#..............#',WALL='################';
@@ -206,11 +206,23 @@ var LEVELS=[
  {cap:'Dark delivery.',w:'night',rows:[WALL,E,'#..........L...#','#..........L...#','#..........L...#','#.......K......#','#P..m..##..L.sD#',WALL,WALL]},
  {cap:'Puppy on the belt.',w:'dusk',rows:[WALL,E,E,E,E,E,'#Py..s....^^..D#','###>>>>>>>>>>###',WALL]},
  {cap:'Puppy and the gate.',w:'rain',rows:[WALL,E,E,'#........G.....#','#........G.....#','#........G.....#','#Py.x.u..G...sD#',WALL,WALL]},
+ {cap:'Fetch!',w:'sun',rows:[WALL,E,E,E,E,E,'#P...Q.....Q..D#',WALL,WALL]},
+ {cap:'Bird brain, puppy edition.',w:'sun',rows:[WALL,E,E,E,E,'#...b.......b.B#','#Py..s....s...D#',WALL,WALL]},
+ {cap:'Cat on the belt.',w:'sun',rows:[WALL,E,E,E,E,E,'#P....c...^^..D#','###>>>>>>>>#####',WALL]},
+ {cap:'Squirrel springboard.',w:'dusk',rows:[WALL,'#...........D..#','#.........######','#........S.....#','#....######....#','#.............q#','#P.S.^^^^^^^^^.#',WALL,WALL]},
+ {cap:'Breezy.',w:'wind',rows:[WALL,'#~.............#',E,E,E,E,'#P............D#','######.....#####','######^^^^^#####']},
+ {cap:'Birds and boxes.',w:'cloud',rows:[WALL,E,E,'#........G.....#','#........G...B.#','#.....b..G.....#','#P.x.u...G....D#',WALL,WALL]},
+ {cap:'Gated mail.',w:'rain',rows:[WALL,E,E,'#........G.....#','#........G.....#','#........G.....#','#P.x.u...G.m..D#',WALL,WALL]},
+ {cap:'Bones on the belt.',w:'sun',rows:[WALL,E,E,E,E,E,'#P..r...r.^^..D#','###>>>>>>>>#####',WALL]},
+ {cap:'Two floors, two balls.',w:'cloud',rows:[WALL,E,E,'#P.....Q.......#','###########....#',E,'#.D.....Q..s...#',WALL,WALL]},
+ {cap:'Key to the puppy.',w:'dusk',rows:[WALL,E,'#..........L...#','#..........L...#','#..........L...#','#.......K......#','#Py.s..##..L.sD#',WALL,WALL]},
+ {cap:'Gale force.',w:'rain',rows:[WALL,'#.......D......#','#...======.....#','#....S.........#','#.=====........#','#~.............#','#P.S.^^^^^^^^^.#',WALL,WALL]},
+ {cap:'Night squirrel.',w:'night',rows:[WALL,E,E,E,E,'#......q.......#','#P..s.......s.D#','#########ff#####','#########^^#####']},
  {cap:'Last yard. Everything at once.',w:'dusk',rows:[WALL,'#..........k...#',E,E,'#.......r......#',E,'#P.o..s...rc.XD#','#######ff#######','#######^^#######']}
 ];
 
 function parse(rows){
-  var L={w:GW,h:GH,tiles:[],cellTrap:[],traps:[],crates:[],gates:[],pup:false,start:null,door:null,target:null};
+  var L={w:GW,h:GH,tiles:[],cellTrap:[],traps:[],crates:[],gates:[],pup:false,wind:false,start:null,door:null,target:null};
   for(var y=0;y<GH;y++){
     var tr=[],ct=[];
     for(var x=0;x<GW;x++){
@@ -224,7 +236,8 @@ function parse(rows){
       else if(c==='S'||c==='L'||c==='>'||c==='<'||c==='=')t=c;
       else if(c==='G'){t='G';L.gates.push({x:x,y:y});}
       else if(c==='y')L.pup=true;
-      else if('sfkXbocmwZqBruK'.indexOf(c)>=0){L.traps.push({type:c,x:x,y:y});ct[x]=L.traps.length-1;}
+      else if(c==='~')L.wind=true;
+      else if('sfkXbocmwZqBruKQ'.indexOf(c)>=0){L.traps.push({type:c,x:x,y:y});ct[x]=L.traps.length-1;}
       tr.push(t);
     }
     L.tiles.push(tr);L.cellTrap.push(ct);
@@ -241,6 +254,7 @@ function newState(L,rnd){
     var o={s:0,tm:tm,y:tp.y,vy:0,x:tp.x+0.5,dir:-1,hold:0,bad:ty==='o'||(ty==='r'&&rnd()<0.5),sd:Math.floor(rnd()*4294967295)+1};
     if(ty==='c'){o.tm=0.8+rnd()*2.2;o.dir=rnd()<0.5?-1:1;}
     if(ty==='m'){o.vy=1.2+rnd()*2;}
+    if(ty==='Q'){o.tm=(i%3)*0.3;}
     G.tr.push(o);
   }
   for(var k=0;k<L.crates.length;k++)G.cr.push({x:L.crates[k].x,y:L.crates[k].y,ft:0,fl:0});
@@ -295,6 +309,7 @@ function updateCrates(G){
     }
   }
 }
+function windAt(t){var ph=t%6;if(ph<3||ph>=5)return 0;var r=ph<3.3?(ph-3)/0.3:(ph>4.7?(5-ph)/0.3:1);return (Math.floor(t/6)%2?-1:1)*r*GUST;}
 function updateGates(G){
   var L=G.L,pr=false,i,p=G.p;
   for(i=0;i<L.traps.length;i++){
@@ -368,7 +383,12 @@ function updateTraps(G){
       if(t.tm>=2.4&&t.tm<3){if(!t.vy){t.vy=1;emit(G,'rustle');}}else t.vy=0;
       if(qv&&t.s!==1){t.s=1;if(Math.abs(pcx-cx)<=7){p.dist=0.7;p.face=cx>pcx?1:-1;}emit(G,'squirrel');}
       else if(!qv)t.s=0;
+    }else if(tp.type==='Q'){
+      t.tm=(t.tm+DT)%0.9;
+      var bnx=t.x+t.dir*3*DT,bex=Math.floor(bnx+t.dir*0.3);
+      if(solid(G,bex,tp.y)||!solid(G,bex,tp.y+1))t.dir=-t.dir;else t.x=bnx;
     }else if(tp.type==='B'){
+      if(t.dir>0){t.dir-=DT;if(t.dir<=0){t.dir=-1;if(Math.abs(pcx-t.y)<0.8)p.dist=0.6;}}
       t.tm=(t.tm+DT)%8;
       var bfly=t.tm<6;
       t.x=bfly?17-3*t.tm:-5;
@@ -380,7 +400,7 @@ function updateTraps(G){
           if((bt.type==='b'||bt.type==='r')&&bs.s===0&&Math.abs(t.x-(bt.x+0.5))<0.55&&Math.abs(bby-(bt.y+0.5))<0.7){bs.s=2;t.hold=1;emit(G,'steal:'+bj);}
         }
         if(t.vy>0)t.vy-=DT;
-        else if(Math.abs(t.x-pcx)<0.4&&pcy>bby){emit(G,'poop:'+i);t.vy=3;}
+        else if(Math.abs(t.x-pcx)<0.4&&pcy>bby){emit(G,'poop:'+i);t.vy=3;t.dir=0.35;t.y=pcx;}
       }
     }
   }
@@ -402,6 +422,7 @@ function deathCause(G,pup){
     if(!pup&&(tp.type==='o'||tp.type==='r')&&s.bad&&s.s===0&&hit(tp.x+0.15,tp.y+0.25,tp.x+0.85,tp.y+0.9))return 'bone';
     if(tp.type==='c'&&hit(s.x-0.46,tp.y+0.28,s.x+0.46,tp.y+1))return 'cat';
     if(tp.type==='m'&&hit(s.x-0.36,tp.y-0.3,s.x+0.36,tp.y+1))return 'mail';
+    if(tp.type==='Q'){var bh=0.8*Math.abs(Math.sin(Math.PI*s.tm/0.9)),bcy=tp.y+0.74-bh;if(hit(s.x-0.27,bcy-0.27,s.x+0.27,bcy+0.27))return 'ball';}
   }
   return '';
 }
@@ -425,7 +446,8 @@ function step(G,inp){
   p.vy=Math.min(p.vy+GRAV*DT,MAXFALL);
   G.blk=null;
   var belt=0;if(p.ground){var bt=G.L.tiles[Math.floor(p.y+PH+0.02)];bt=bt&&bt[Math.floor(p.x+PW/2)];belt=bt==='>'?BELT:bt==='<'?-BELT:0;}
-  moveX(G,(p.vx+belt)*DT);
+  var wnd=0;if(G.L.wind){wnd=windAt(G.t);var ph1=G.t%6;if(ph1>=3&&ph1-DT<3)emit(G,'gust');}
+  moveX(G,(p.vx+belt+wnd)*DT);
   if(G.blk&&dir!==0&&p.ground){
     p.push+=DT;
     if(p.push>=0.22){
@@ -521,6 +543,7 @@ function sfx(n){
     case 'click':noise(0.03,0.15,'highpass',2000);tone(500,300,0.05,'square',0.04);break;
     case 'gate':tone(140,90,0.35,'sawtooth',0.06);noise(0.3,0.06,'lowpass',500);break;
     case 'shut':noise(0.14,0.2,'lowpass',280);tone(100,60,0.12,'square',0.05);break;
+    case 'gust':noise(1.3,0.1,'bandpass',700,0,0.7);break;
     case 'purr':tone(55,70,0.5,'sawtooth',0.05);tone(60,50,0.4,'sawtooth',0.04,0.3);break;
     case 'push':noise(0.1,0.09,'lowpass',260);break;
     case 'crate':noise(0.14,0.2,'lowpass',320);tone(120,70,0.12,'square',0.05);break;
@@ -598,10 +621,22 @@ var NARR={
   34:['Puppy and the gate. Teamwork. Mostly yours.'],
   35:['Last one. Everything at once. I believe in you. Slightly.']
 };
-(function(){var N2={},INS=[11, 22, 33];Object.keys(NARR).forEach(function(k){k=+k;var sh=0;INS.forEach(function(p,j){if(k>=p-j)sh++;});N2[k+sh]=NARR[k];});
+(function(){var N2={},OLD=[11, 21, 31, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35];Object.keys(NARR).forEach(function(k){k=+k;var sh=0;OLD.forEach(function(p){if(p<=k)sh++;});N2[k+sh]=NARR[k];});
 N2[11]=['Nothing here. I checked twice.','No spikes. No cats. I am suspicious too.','Just enjoy the walk. Smell something.'];
 N2[22]=['I made this one short. Do not thank me.','The mailman is on a break. So am I.'];
 N2[33]=['Intermission. Please return to your seats.','Buy a bone in the lobby. Dogs eat free.','Okay, enough. Back to work.'];
+N2[38]=["A ball. Every dog loves a ball. This one loves you back. Aggressively.", "Jump when it is low. Or run under when it is high. Your call."];
+N2[39]=["The puppy is back. So is the bird. They have not met.", "Bird: 1. Puppy: 0. Do not let it start."];
+N2[40]=["The cat is on a conveyor belt. I did not plan this. I just let it happen."];
+N2[41]=["Squirrel season. Do not look at the tree. You will look at the tree."];
+N2[42]=["Wind. The forecast said gusts. The forecast was an optimist.", "Wait for a tailwind. Jump. Pretend it was skill."];
+N2[43]=["A bird, a box, a gate. A normal Tuesday."];
+N2[44]=["The mailman is behind the gate. He has been there since Monday."];
+N2[45]=["Bones on a conveyor belt. A sushi bar for dogs. Be careful what you grab."];
+N2[46]=["Two floors, two balls. Somebody lost two balls. Probably the owner."];
+N2[47]=["A key, a puppy and a trap. I have run out of jokes. Not really."];
+N2[48]=["Gale force wind. Hold on to your ears."];
+N2[49]=["Night. A squirrel. A pit. What could go wrong. Everything."];
 NARR=N2;})();
 var WINLINES=['Level complete. I am as surprised as you are.','Look at you. A professional.','Treat? No. Moving on.','Not bad. For a dog.'];
 var MILE={5:'Five deaths. A personal record? Sure, let us say yes.',10:'Ten deaths. At this point it is a hobby.',25:'25 deaths. The cat is making popcorn.',50:'50 deaths. I am calling the vet. For me.',100:'100 deaths. Honestly, impressive.'};
@@ -614,6 +649,7 @@ var M={
   bone:['That was not a bone. That was a lie.','Spiky bone. The owner never buys these.','That bone had personality.','Smelled delicious. Bit harder.'],
   cat:['Fat cat: 1. Dog: 0.','The cat wins. As usual.','You ran into a very large cat. It was not impressed.','The cat did not even get up.','A polite "meow" hurts the most.'],
   mail:['Return to sender. Violently.','The mailman delivered. You were the package.','Postage due: one dog.'],
+  ball:['Fetch? More like fetched.','The ball won. Dogs lose to balls. Tradition.','You chased the ball. The ball chased back.'],
   pup:['You lost the puppy. Nice going.','The puppy was following you. That was the entire plan.','Puppy down. The owner is very disappointed.','Keep the puppy alive. It is a simple job.'],
   _x:[]
 };
@@ -689,6 +725,7 @@ function handleEvents(){
     else if(e==='meow')sfx('meow');
     else if(e==='ding')sfx('ding');
     else if(e==='purr')sfx('purr');
+    else if(e==='gust'){sfx('gust');sayOnce('gust','Wind. Even the weather is against you.',2600);}
     else if(e==='boing'){sfx('boing');springAnim=0.2;sayOnce('boing','Boing. Dogs were born for this.',2400);}
     else if(e==='key'){sfx('key');sayOnce('key','A key! Surely not a trap. (It is not.)',2600);}
     else if(e==='click')sfx('click');
@@ -835,6 +872,13 @@ function drawPlank(x,y,T){
   ctx.fillStyle=K.crate;ctx.fillRect(X,Y,T,T*0.26);
   ctx.fillStyle=hexA(K['crate-dark'],0.7);ctx.fillRect(X+T*0.5-1,Y,2,T*0.26);
 }
+function drawBall(tp,s,T,t){
+  var h=0.8*Math.abs(Math.sin(Math.PI*s.tm/0.9)),X=s.x*T,Y=(tp.y+0.74-h)*T,r=T*0.27;
+  ctx.fillStyle=hexA(K.bg,0.3);ctx.beginPath();ctx.ellipse(X,(tp.y+0.98)*T,r*(1-h*0.4),r*0.25,0,0,6.2832);ctx.fill();
+  ctx.fillStyle=K.accent;circ(X,Y,r);
+  var a=t*8*s.dir;ctx.strokeStyle=K.bone;ctx.lineWidth=Math.max(2,T*0.06);ctx.beginPath();ctx.arc(X,Y,r*0.7,a,a+2.2);ctx.stroke();
+  ctx.fillStyle=hexA(K.bone,0.5);circ(X-r*0.35,Y-r*0.35,r*0.18);
+}
 function drawGate(x,y,T){
   var X=x*T,Y=y*T,open=G.gopen;
   ctx.fillStyle=hexA(K['mail-dark'],open?0.25:0.95);ctx.fillRect(X+T*0.1,Y,T*0.8,T);
@@ -885,6 +929,17 @@ function drawNight(T){
 }
 function drawWeatherFront(t,T,dt){
   var k=calm?0.2:1,i;
+  if(Lcur.wind){
+    var wv=windAt(G.t),ph=G.t%6,wa=Math.abs(wv)/GUST,sg=(Math.floor(G.t/6)%2?-1:1);
+    var warn=(ph>=2.2&&ph<3)?(ph-2.2)/0.8*0.35:0,al=Math.max(wa*0.5,warn);
+    if(al>0.02){
+      ctx.strokeStyle=hexA(K.cloud,al);ctx.lineWidth=Math.max(1.5,T*0.03);ctx.lineCap='round';
+      for(i=0;i<9;i++){
+        var yy=((i*0.137+0.08)%0.8)*ch+ch*0.05,xx=(((t*(1.2+i*0.08)*k*sg*0.9)+i*0.31)%1.4+1.4)%1.4;
+        var x0=(xx-0.2)*cw;ctx.beginPath();ctx.moveTo(x0,yy);ctx.lineTo(x0+sg*T*(1.2+wa),yy);ctx.stroke();
+      }
+    }
+  }
   if(curW==='rain'){
     ctx.strokeStyle=hexA(K.rain,0.55);ctx.lineWidth=Math.max(1,T*0.025);ctx.beginPath();
     for(i=0;i<drops.length;i++){
@@ -1139,6 +1194,8 @@ function draw(t){
       if(s.s===0)drawScissors(tp.x,tp.y,T,t);
     }else if(tp.type==='q'){
       drawTree(tp,s,T,t);
+    }else if(tp.type==='Q'){
+      drawBall(tp,s,T,t);
     }else if(tp.type==='u'){
       drawButton(tp,s,T);
     }else if(tp.type==='K'){
