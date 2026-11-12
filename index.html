@@ -232,6 +232,13 @@ var LEVELS=[
  {cap:'Bone lottery.',w:'sun',rows:[WALL,E,E,E,E,E,'#P.r..s..r..s.D#',WALL,WALL]},
  {cap:'Fake out.',w:'night',rows:[WALL,E,E,E,E,E,'#P.X..X..s..X.D#',WALL,WALL]},
  {cap:'Windy birds.',w:'wind',rows:[WALL,'#~.............#',E,E,E,'#.......B......#','#P............D#',WALL,WALL]},
+ {cap:'Trust fall.',w:'sun',rows:[WALL,E,E,E,E,E,'#P.b.........D.#','####ff###ff#####','####^^###^^#####']},
+ {cap:'Squirrel crossing.',w:'dusk',rows:[WALL,'#.....k..k.....#',E,E,E,'#...q.....q....#','#P.....s.....D.#',WALL,WALL]},
+ {cap:'Ball and cat.',w:'cloud',rows:[WALL,E,E,E,E,E,'#P..Q..c..Q..D.#',WALL,WALL]},
+ {cap:'Two mailmen.',w:'rain',rows:[WALL,E,E,E,E,E,'#P..m....m..D..#',WALL,WALL]},
+ {cap:'Moonlit snacks.',w:'night',rows:[WALL,E,E,E,'#.....r........#','#.......q......#','#P.r..s...r.s.D#',WALL,WALL]},
+ {cap:'Reverse psychology.',w:'sun',rows:[WALL,E,E,E,E,E,'#D..s....c...P.#',WALL,WALL]},
+ {cap:'Almost there, again.',w:'dusk',rows:[WALL,E,E,E,E,E,'#P..s..n..s.b.D#',WALL,WALL]},
  {cap:'Last yard. Everything at once.',w:'dusk',rows:[WALL,'#..........k...#',E,E,'#.......r......#',E,'#P.o..s...rc.XD#','#######ff#######','#######^^#######']}
 ];
 
@@ -635,7 +642,7 @@ var NARR={
   34:['Puppy and the gate. Teamwork. Mostly yours.'],
   35:['Last one. Everything at once. I believe in you. Slightly.']
 };
-(function(){var N2={},OLD=[11, 21, 31, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35];Object.keys(NARR).forEach(function(k){k=+k;var sh=0;OLD.forEach(function(p){if(p<=k)sh++;});N2[k+sh]=NARR[k];});
+(function(){var N2={},OLD=[11, 21, 31, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35];Object.keys(NARR).forEach(function(k){k=+k;var sh=0;OLD.forEach(function(p){if(p<=k)sh++;});N2[k+sh]=NARR[k];});
 N2[11]=['Nothing here. I checked twice.','No spikes. No cats. I am suspicious too.','Just enjoy the walk. Smell something.'];
 N2[22]=['I made this one short. Do not thank me.','The mailman is on a break. So am I.'];
 N2[33]=['Intermission. Please return to your seats.','Buy a bone in the lobby. Dogs eat free.','Okay, enough. Back to work.'];
@@ -660,6 +667,13 @@ N2[55]=["Rainy day. Mailman. Ball. A reasonable combination."];
 N2[56]=["Bone lottery. Some win. Some do not. I will not name names."];
 N2[57]=["Fake doghouses in the dark. Choose wisely. Or do not."];
 N2[58]=["Windy. A bird. Your ears are doing their best."];
+N2[59]=["Trust fall. The floor is not trustworthy. Neither am I."];
+N2[60]=["Squirrel crossing. Look both ways. Then look up. Then at the squirrel anyway."];
+N2[61]=["Ball. Cat. Both want your attention. Neither is nice about it."];
+N2[62]=["Two mailmen. Overstaffed. They still miss the package."];
+N2[63]=["Moonlit snacks. Eat in the dark. What could be wrong with a bone you cannot see."];
+N2[64]=["The doghouse is on the left. You are on the right. Congratulations, you read the level."];
+N2[65]=["Almost there. Again. I told you it would happen again."];
 NARR=N2;})();
 var WINLINES=['Level complete. I am as surprised as you are.','Look at you. A professional.','Treat? No. Moving on.','Not bad. For a dog.'];
 var MILE={5:'Five deaths. A personal record? Sure, let us say yes.',10:'Ten deaths. At this point it is a hobby.',25:'25 deaths. The cat is making popcorn.',50:'50 deaths. I am calling the vet. For me.',100:'100 deaths. Honestly, impressive.'};
