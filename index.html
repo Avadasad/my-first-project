@@ -134,6 +134,22 @@ html,body{overscroll-behavior:none;touch-action:none}
 .addr button{background:var(--sky-line);color:var(--ink)}
 .hclose{background:var(--accent);color:var(--on-accent)}
 .heart svg{fill:var(--accent)}
+.tmr{font-family:var(--font-body);font-weight:700;font-size:13px;color:var(--muted);margin-left:8px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.stcard{max-width:460px;max-height:100%;overflow:hidden;grid-template-rows:auto auto auto minmax(0,1fr) auto}
+.stcard h2{margin:0}
+.stsum{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:14px;color:var(--muted)}
+.stsum b{color:var(--accent);font-family:var(--font-body);font-variant-numeric:tabular-nums}
+.stscroll{overflow:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--sky-line);border-radius:8px;min-height:80px;max-height:40vh;touch-action:pan-y}
+.sttab{width:100%;table-layout:fixed;border-collapse:collapse;font-size:12px;font-variant-numeric:tabular-nums}
+.sttab th{position:sticky;top:0;background:var(--panel);text-align:left;color:var(--muted);font-weight:500;padding:5px 6px;letter-spacing:.06em;text-transform:uppercase;font-size:10px}
+.sttab td{padding:3px 6px;border-top:1px solid var(--sky-line)}
+.sttab td:nth-child(1){color:var(--muted);width:2em}
+.sttab td:nth-child(3),.sttab td:nth-child(4),.sttab th:nth-child(3),.sttab th:nth-child(4){text-align:right;white-space:nowrap}
+.sttab th:nth-child(1){width:2.4em}.sttab th:nth-child(3){width:5.2em}.sttab th:nth-child(4){width:3.6em}
+.sttab td:nth-child(2){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sttab .bst{color:var(--accent);font-weight:700}
+.stbtns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stbtns .sec{background:transparent;border:1px solid var(--sky-line);border-radius:10px;padding:12px;font-weight:700}
 .top{flex-wrap:nowrap}.lvl,.deaths{white-space:nowrap}
 .rot{display:none}
 @media (max-width:520px){
@@ -151,7 +167,7 @@ html,body{overscroll-behavior:none;touch-action:none}
 
 <main class="app">
   <header class="top">
-    <div class="lvl"><small>Level</small><span id="lvl">1 of 10</span></div>
+    <div class="lvl"><small>Level</small><span id="lvl">1 of 10</span><span class="tmr" id="tmr">0:00</span></div>
     <div class="right"><div class="deaths">Bones <b id="bones">0</b> &nbsp; Deaths <b id="deaths">0</b></div><button class="mute hbtn heart" id="helpBtn" type="button" aria-label="Help the street dogs"><svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.8-9.6-9.4C.9 8.2 3 4.8 6.4 4.8c2.2 0 4 1.2 5.6 3.2 1.6-2 3.4-3.2 5.6-3.2 3.4 0 5.5 3.4 4 6.8C19.500 16.200 12 21 12 21z"/></svg></button><button class="mute hbtn" id="redo" type="button" aria-label="Restart level"><svg viewBox="0 0 24 24"><path d="M12 5V2L7 6l5 4V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z"/></svg></button><button class="mute hbtn" id="mute" type="button" aria-label="Sound on or off"><svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 4V5L7 9z"/><path class="wave" d="M15 8.5a5 5 0 0 1 0 7M17.5 6a8.5 8.5 0 0 1 0 12" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/><path class="x" d="M15 9l6 6m0-6l-6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></button></div>
   </header>
   <div class="stage" id="stage">
@@ -180,6 +196,15 @@ html,body{overscroll-behavior:none;touch-action:none}
     <div class="addr"><b>USDT on the TRON network (TRC-20)</b><code id="a2">TZ1gGUFPdnzFxjWbxed8cB6mLC4WqHLX4q</code><button type="button" data-copy="a2">Copy address</button></div>
     <p class="muted">You can send from Telegram Wallet. Crypto transfers cannot be undone, so please check the network before you send. No pressure, ever. A kind word to a dog is free too.</p>
     <button class="hclose" id="helpClose" type="button">Back to the yard</button>
+  </div>
+</div>
+<div class="sheet" id="stats" hidden>
+  <div class="card stcard" role="dialog" aria-modal="true" aria-labelledby="stTitle">
+    <h2 id="stTitle">You made it home!</h2>
+    <p id="stSub" style="margin:0"></p>
+    <div class="stsum" id="stSum"></div>
+    <div class="stscroll"><table class="sttab"><thead><tr><th>#</th><th>Level</th><th>Time</th><th>Died</th></tr></thead><tbody id="stBody"></tbody></table></div>
+    <div class="stbtns"><button class="sec" id="stCopy" type="button">Copy result</button><button class="primary" id="stAgain" type="button">Play again</button></div>
   </div>
 </div>
 <div class="sheet" id="sheet" hidden>
@@ -243,6 +268,7 @@ var LEVELS=[
  {cap:'Bird brain, puppy edition.',w:'sun',rows:[WALL,E,E,E,E,'#...b.......b.B#','#Py..s....s...D#',WALL,WALL]},
  {cap:'Cat on the belt.',w:'sun',rows:[WALL,E,E,E,E,E,'#P....c...^^..D#','###>>>>>>>>#####',WALL]},
  {cap:'Squirrel springboard.',w:'dusk',rows:[WALL,'#...........D..#','#.........######','#........S.....#','#....######....#','#.............q#','#P.S.^^^^^^^^^.#',WALL,WALL]},
+ {cap:'Wrong way, wrong way.',w:'dusk',rows:[WALL,E,E,E,E,E,'#D..c........P.#','#####ff###ff####','#####^^###^^####']},
  {cap:'Breezy.',w:'wind',rows:[WALL,'#~.............#',E,E,E,E,'#P............D#','######.....#####','######^^^^^#####']},
  {cap:'Birds and boxes.',w:'cloud',rows:[WALL,E,E,'#........G.....#','#........G...B.#','#.....b..G.....#','#P.x.u...G....D#',WALL,WALL]},
  {cap:'Gated mail.',w:'rain',rows:[WALL,E,E,'#........G.....#','#........G.....#','#........G.....#','#P.x.u...G.m..D#',WALL,WALL]},
@@ -250,11 +276,13 @@ var LEVELS=[
  {cap:'Almost there.',w:'sun',rows:[WALL,E,E,E,E,E,'#Pn.......b...D#',WALL,WALL]},
  {cap:'Two floors, two balls.',w:'cloud',rows:[WALL,E,E,'#P.....Q.......#','###########....#',E,'#.D.....Q..s...#',WALL,WALL]},
  {cap:'Key to the puppy.',w:'dusk',rows:[WALL,E,'#..........L...#','#..........L...#','#..........L...#','#.......K......#','#Py.s..##..L.sD#',WALL,WALL]},
+ {cap:'Behind you.',w:'sun',rows:[WALL,E,E,E,E,E,'#D..s...c...P.n#',WALL,WALL]},
  {cap:'Gale force.',w:'rain',rows:[WALL,'#.......D......#','#...======.....#','#....S.........#','#.=====........#','#~.............#','#P.S.^^^^^^^^^.#',WALL,WALL]},
  {cap:'Night squirrel.',w:'night',rows:[WALL,E,E,E,E,'#......q.......#','#P..s.......s.D#','#########ff#####','#########^^#####']},
  {cap:'Three trees.',w:'sun',rows:[WALL,'#..J.J.J.J.J.J.#',E,E,E,'#...q...q...Y..#','#P............D#',WALL,WALL]},
  {cap:'Two doghouses.',w:'sun',rows:[WALL,E,E,E,E,E,'#P.n..s..X...bD#',WALL,WALL]},
  {cap:'Stage fright.',w:'dusk',rows:[WALL,'#.....k..k.....#',E,E,E,'#....q.........#','#P...........D.#',WALL,WALL]},
+ {cap:'Wrong way, with an audience.',w:'night',rows:[WALL,'#...k....k.....#',E,E,E,'#....q.........#','#D..s........P.#',WALL,WALL]},
  {cap:'Cat parade.',w:'cloud',rows:[WALL,E,E,E,E,E,'#P..c....c...D.#','###<<<<<<<<<<###',WALL]},
  {cap:'Rainy mail.',w:'rain',rows:[WALL,E,E,E,E,E,'#P.m...Q.....D.#',WALL,WALL]},
  {cap:'Bone lottery.',w:'sun',rows:[WALL,E,E,E,E,E,'#P.r..s..r..s.D#',WALL,WALL]},
@@ -262,16 +290,19 @@ var LEVELS=[
  {cap:'Windy birds.',w:'wind',rows:[WALL,'#~.............#',E,E,E,'#.......B......#','#P............D#',WALL,WALL]},
  {cap:'Trust fall.',w:'sun',rows:[WALL,E,E,E,E,E,'#P.b.........D.#','####ff###ff#####','####^^###^^#####']},
  {cap:'Squirrel crossing.',w:'dusk',rows:[WALL,'#.....k..k.....#',E,E,E,'#...q.....q....#','#P.....s.....D.#',WALL,WALL]},
+ {cap:'Wrong way, fake edition.',w:'cloud',rows:[WALL,E,E,E,E,E,'#D..s..X..s..P.#',WALL,WALL]},
  {cap:'Ball and cat.',w:'cloud',rows:[WALL,E,E,E,E,E,'#P..Q..c..Q..D.#',WALL,WALL]},
  {cap:'Two mailmen.',w:'rain',rows:[WALL,E,E,E,E,E,'#P..m....m..D..#',WALL,WALL]},
  {cap:'Moonlit snacks.',w:'night',rows:[WALL,E,E,E,'#.....r........#','#.......q......#','#P.r..s...r.s.D#',WALL,WALL]},
  {cap:'Reverse psychology.',w:'sun',rows:[WALL,E,E,E,E,E,'#D..s....c...P.#',WALL,WALL]},
  {cap:'Almost there, again.',w:'dusk',rows:[WALL,E,E,E,E,E,'#P..s..n..s.b.D#',WALL,WALL]},
+ {cap:'Musical doghouses.',w:'sun',rows:[WALL,E,E,E,E,E,'#P2.D..H.3sH.H1#',WALL,WALL]},
+ {cap:'Hardcore. You were warned.',w:'night',rows:[WALL,'#...k..k...k...#',E,E,E,'#.....q.....q..#','#P.s..c..s.m.sD#','#####ff###ff####','#####^^###^^####']},
  {cap:'Last yard. Everything at once.',w:'dusk',rows:[WALL,'#..........k...#',E,E,'#.......r......#',E,'#P.o..s...rc.XD#','#######ff#######','#######^^#######']}
 ];
 
 function parse(rows){
-  var L={w:GW,h:GH,tiles:[],cellTrap:[],traps:[],crates:[],gates:[],pup:false,wind:false,start:null,door:null,target:null};
+  var L={w:GW,h:GH,tiles:[],cellTrap:[],traps:[],crates:[],gates:[],pup:false,wind:false,hops:[],start:null,door:null,target:null};
   for(var y=0;y<GH;y++){
     var tr=[],ct=[];
     for(var x=0;x<GW;x++){
@@ -281,12 +312,13 @@ function parse(rows){
       else if(c==='P')L.start={x:x,y:y};
       else if(c==='D')L.door={x:x,y:y};
       else if(c==='n')L.target={x:x,y:y};
+      else if(c==='1'||c==='2'||c==='3')L.hops[+c-1]={x:x,y:y};
       else if(c==='x'){L.crates.push({x:x,y:y});}
       else if(c==='S'||c==='L'||c==='>'||c==='<'||c==='=')t=c;
       else if(c==='G'){t='G';L.gates.push({x:x,y:y});}
       else if(c==='y')L.pup=true;
       else if(c==='~')L.wind=true;
-      else if('sfkXbocmwZqBruKQYJ'.indexOf(c)>=0){L.traps.push({type:c,x:x,y:y});ct[x]=L.traps.length-1;}
+      else if('sfkXbocmwZqBruKQYJH'.indexOf(c)>=0){L.traps.push({type:c,x:x,y:y});ct[x]=L.traps.length-1;}
       tr.push(t);
     }
     L.tiles.push(tr);L.cellTrap.push(ct);
@@ -296,7 +328,7 @@ function parse(rows){
 }
 function newState(L,rnd){
   rnd=rnd||Math.random;
-  var G={bones:0,cause:'',cut:false,ev:[],rec:false,blk:null,L:L,p:{x:L.start.x+(1-PW)/2,y:L.start.y+1-PH,vx:0,vy:0,ground:false,coy:0,face:1,tight:false,dist:0,push:0},tr:[],cr:[],door:{x:L.door.x,y:L.door.y,moved:false},dead:false,won:false,t:0,gopen:false,key:false,atd:false,h:null};
+  var G={bones:0,cause:'',cut:false,ev:[],rec:false,blk:null,L:L,p:{x:L.start.x+(1-PW)/2,y:L.start.y+1-PH,vx:0,vy:0,ground:false,coy:0,face:1,tight:false,dist:0,push:0},tr:[],cr:[],door:{x:L.door.x,y:L.door.y,moved:false,hop:0},dead:false,won:false,t:0,gopen:false,key:false,atd:false,h:null};
   for(var i=0;i<L.traps.length;i++){
     var tp=L.traps[i],ty=tp.type;
     var tm=ty==='w'?(i%3)*1.0:ty==='Y'?0.9:ty==='q'?2.0+(i%3)*0.9:ty==='B'?(17-tp.x)/3:0;
@@ -314,7 +346,7 @@ function clone(G){
   return {bones:G.bones,cause:G.cause,cut:G.cut,ev:[],rec:false,blk:null,L:G.L,p:{x:G.p.x,y:G.p.y,vx:G.p.vx,vy:G.p.vy,ground:G.p.ground,coy:G.p.coy,face:G.p.face,tight:G.p.tight,dist:G.p.dist,push:G.p.push},
     tr:G.tr.map(function(a){return {s:a.s,tm:a.tm,y:a.y,vy:a.vy,x:a.x,dir:a.dir,hold:a.hold,bad:a.bad,sd:a.sd};}),
     cr:G.cr.map(function(c){return {x:c.x,y:c.y,ft:c.ft,fl:c.fl};}),
-    door:{x:G.door.x,y:G.door.y,moved:G.door.moved},dead:G.dead,won:G.won,t:G.t,gopen:G.gopen,key:G.key,atd:G.atd,h:G.h?G.h.slice():null};
+    door:{x:G.door.x,y:G.door.y,moved:G.door.moved,hop:G.door.hop},dead:G.dead,won:G.won,t:G.t,gopen:G.gopen,key:G.key,atd:G.atd,h:G.h?G.h.slice():null};
 }
 function emit(G,n){if(G.rec)G.ev.push(n);}
 function lcg(s){return (Math.imul(s,1664525)+1013904223)>>>0;}
@@ -453,7 +485,8 @@ function updateTraps(G){
       }
     }
   }
-  if(L.target&&!G.door.moved&&Math.abs(pcx-(G.door.x+0.5))<=2.3){G.door.x=L.target.x;G.door.y=L.target.y;G.door.moved=true;}
+  var hl=L.hops.length?L.hops:(L.target?[L.target]:[]);
+  if(G.door.hop<hl.length&&Math.abs(pcx-(G.door.x+0.5))<=2.3){var ht=hl[G.door.hop];G.door.x=ht.x;G.door.y=ht.y;G.door.hop++;G.door.moved=true;emit(G,'hop'+G.door.hop);}
 }
 function pupCause(G,q){var sv=G.p;G.p={x:q[0],y:q[1]};var c=deathCause(G,true);G.p=sv;return c;}
 function deathCause(G,pup){
@@ -467,6 +500,7 @@ function deathCause(G,pup){
     var tp=L.traps[i],s=G.tr[i];
     if(tp.type==='s'&&s.s===1&&hit(tp.x+0.12,tp.y+0.5,tp.x+0.88,tp.y+1))return 'pop';
     if(tp.type==='X'&&hit(tp.x+0.1,tp.y+0.05,tp.x+0.9,tp.y+1))return 'fake';
+    if(tp.type==='H'&&G.L.hops.length&&G.door.hop>=G.L.hops.length&&hit(tp.x+0.1,tp.y+0.05,tp.x+0.9,tp.y+1))return 'fake';
     if(tp.type==='k'&&s.s<3&&hit(tp.x+0.2,s.y+0.1,tp.x+0.8,s.y+0.9))return 'fall';
     if(!pup&&(tp.type==='o'||tp.type==='r')&&s.bad&&s.s===0&&hit(tp.x+0.15,tp.y+0.25,tp.x+0.85,tp.y+0.9))return 'bone';
     if(tp.type==='c'&&hit(s.x-0.46,tp.y+0.28,s.x+0.46,tp.y+1))return 'cat';
@@ -535,6 +569,7 @@ var dpr=1,cw=640,ch=360;
 var calm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
 var SAVE_KEY='podlyi-dvor-v4',MUTE_KEY='podlyi-dvor-mute';
 var lvlIndex=0,deaths=0,bonesTotal=0,G=null,Lcur=null,sheetOpen=false;
+var times=[],lvlDs=[],bests=[],bestTotal=0,lvlT=0,lvlD=0,pendingT=0,pendingD=0,tmrShown=-1,BEST_KEY='podlyi-dvor-best';
 var attempts=0,lastBones=0,idleFrames=0,idleSaid=false,fakeShown=false;
 var bonkFx=null,birdFx=null,deadT=0,winT=0,shake=0,parts=[],capTimer=null,narrTimers=[];
 var inp={l:false,r:false,j:false};
@@ -544,10 +579,11 @@ function floatText(txt,x,y){fts.push({txt:txt,x:x,y:y,age:0});}
 function goodBones(i){var n=0;LEVELS[i].rows.forEach(function(r){for(var k=0;k<r.length;k++)if(r.charAt(k)==='b')n++;});return n;}
 try{
   var sv=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');
-  if(sv&&sv.lvl>=0&&sv.lvl<LEVELS.length){lvlIndex=sv.lvl;deaths=sv.deaths||0;bonesTotal=sv.bones||0;}
+  if(sv&&sv.lvl>=0&&sv.lvl<LEVELS.length){lvlIndex=sv.lvl;deaths=sv.deaths||0;bonesTotal=sv.bones||0;times=sv.tm||[];lvlDs=sv.ld||[];pendingT=sv.lt||0;pendingD=sv.cd||0;}
 }catch(e){}
 fakeShown=lvlIndex>=9;
-function save(){try{localStorage.setItem(SAVE_KEY,JSON.stringify({lvl:lvlIndex,deaths:deaths,bones:bonesTotal}));}catch(e){}}
+try{var bv=JSON.parse(localStorage.getItem(BEST_KEY)||'null');if(bv){bests=bv.lv||[];bestTotal=bv.total||0;}}catch(e){}
+function save(){try{localStorage.setItem(SAVE_KEY,JSON.stringify({lvl:lvlIndex,deaths:deaths,bones:bonesTotal,tm:times,ld:lvlDs,lt:Math.round(lvlT*10)/10,cd:lvlD}));}catch(e){}}
 
 /* ---------- sound (synthesized, no files) ---------- */
 var AC=null,muted=false,noiseBuf=null;
@@ -670,7 +706,7 @@ var NARR={
   34:['Puppy and the gate. Teamwork. Mostly yours.'],
   35:['Last one. Everything at once. I believe in you. Slightly.']
 };
-(function(){var N2={},OLD=[11, 21, 31, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35];Object.keys(NARR).forEach(function(k){k=+k;var sh=0;OLD.forEach(function(p){if(p<=k)sh++;});N2[k+sh]=NARR[k];});
+(function(){var N2={},OLD=[11, 21, 31, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35];Object.keys(NARR).forEach(function(k){k=+k;var sh=0;OLD.forEach(function(p){if(p<=k)sh++;});N2[k+sh]=NARR[k];});
 N2[11]=['Nothing here. I checked twice.','No spikes. No cats. I am suspicious too.','Just enjoy the walk. Smell something.'];
 N2[22]=['I made this one short. Do not thank me.','The mailman is on a break. So am I.'];
 N2[33]=['Intermission. Please return to your seats.','Buy a bone in the lobby. Dogs eat free.','Okay, enough. Back to work.'];
@@ -678,30 +714,36 @@ N2[38]=["A ball. Every dog loves a ball. This one loves you back. Aggressively."
 N2[39]=["The puppy is back. So is the bird. They have not met.", "Bird: 1. Puppy: 0. Do not let it start."];
 N2[40]=["The cat is on a conveyor belt. I did not plan this. I just let it happen."];
 N2[41]=["Squirrel season. Do not look at the tree. You will look at the tree."];
-N2[42]=["Wind. The forecast said gusts. The forecast was an optimist.", "Wait for a tailwind. Jump. Pretend it was skill."];
-N2[43]=["A bird, a box, a gate. A normal Tuesday."];
-N2[44]=["The mailman is behind the gate. He has been there since Monday."];
-N2[45]=["Bones on a conveyor belt. A sushi bar for dogs. Be careful what you grab."];
-N2[46]=["Nothing here. Really. Run.", "I would never lie to you. Much."];
-N2[47]=["Two floors, two balls. Somebody lost two balls. Probably the owner."];
-N2[48]=["A key, a puppy and a trap. I have run out of jokes. Not really."];
-N2[49]=["Gale force wind. Hold on to your ears."];
-N2[50]=["Night. A squirrel. A pit. What could go wrong. Everything."];
-N2[51]=["Three trees. Three squirrels. No traps. I swear on the bone.", "Those spikes? Decoration. Probably."];
-N2[52]=["Two doghouses. One is real. I will not say which."];
-N2[53]=["Stage fright. The squirrel is the audience. The ceiling is the critic."];
-N2[54]=["A cat parade. Fat cats on a treadmill. Do not feed them."];
-N2[55]=["Rainy day. Mailman. Ball. A reasonable combination."];
-N2[56]=["Bone lottery. Some win. Some do not. I will not name names."];
-N2[57]=["Fake doghouses in the dark. Choose wisely. Or do not."];
-N2[58]=["Windy. A bird. Your ears are doing their best."];
-N2[59]=["Trust fall. The floor is not trustworthy. Neither am I."];
-N2[60]=["Squirrel crossing. Look both ways. Then look up. Then at the squirrel anyway."];
-N2[61]=["Ball. Cat. Both want your attention. Neither is nice about it."];
-N2[62]=["Two mailmen. Overstaffed. They still miss the package."];
-N2[63]=["Moonlit snacks. Eat in the dark. What could be wrong with a bone you cannot see."];
-N2[64]=["The doghouse is on the left. You are on the right. Congratulations, you read the level."];
-N2[65]=["Almost there. Again. I told you it would happen again."];
+N2[42]=["The doghouse is on the left again. I moved nothing. You are just wrong.", "Mind the floor. It has opinions."];
+N2[43]=["Wind. The forecast said gusts. The forecast was an optimist.", "Wait for a tailwind. Jump. Pretend it was skill."];
+N2[44]=["A bird, a box, a gate. A normal Tuesday."];
+N2[45]=["The mailman is behind the gate. He has been there since Monday."];
+N2[46]=["Bones on a conveyor belt. A sushi bar for dogs. Be careful what you grab."];
+N2[47]=["Nothing here. Really. Run.", "I would never lie to you. Much."];
+N2[48]=["Two floors, two balls. Somebody lost two balls. Probably the owner."];
+N2[49]=["A key, a puppy and a trap. I have run out of jokes. Not really."];
+N2[50]=["Left again. Run to the doghouse. Then turn around.", "I am not saying it will move. I am not saying it will not."];
+N2[51]=["Gale force wind. Hold on to your ears."];
+N2[52]=["Night. A squirrel. A pit. What could go wrong. Everything."];
+N2[53]=["Three trees. Three squirrels. No traps. I swear on the bone.", "Those spikes? Decoration. Probably."];
+N2[54]=["Two doghouses. One is real. I will not say which."];
+N2[55]=["Stage fright. The squirrel is the audience. The ceiling is the critic."];
+N2[56]=["Left. Night. A squirrel and a ceiling. The usual."];
+N2[57]=["A cat parade. Fat cats on a treadmill. Do not feed them."];
+N2[58]=["Rainy day. Mailman. Ball. A reasonable combination."];
+N2[59]=["Bone lottery. Some win. Some do not. I will not name names."];
+N2[60]=["Fake doghouses in the dark. Choose wisely. Or do not."];
+N2[61]=["Windy. A bird. Your ears are doing their best."];
+N2[62]=["Trust fall. The floor is not trustworthy. Neither am I."];
+N2[63]=["Squirrel crossing. Look both ways. Then look up. Then at the squirrel anyway."];
+N2[64]=["Left, with a doghouse that lies. Left is still left."];
+N2[65]=["Ball. Cat. Both want your attention. Neither is nice about it."];
+N2[66]=["Two mailmen. Overstaffed. They still miss the package."];
+N2[67]=["Moonlit snacks. Eat in the dark. What could be wrong with a bone you cannot see."];
+N2[68]=["The doghouse is on the left. You are on the right. Congratulations, you read the level."];
+N2[69]=["Almost there. Again. I told you it would happen again."];
+N2[70]=["The doghouse moves. Then it moves again. Then it multiplies.", "When there are four, one is telling the truth."];
+N2[71]=["Hardcore mode. Everything is out to get you. Including me.", "Good luck. Seriously. You will need it."];
 NARR=N2;})();
 var WINLINES=['Level complete. I am as surprised as you are.','Look at you. A professional.','Treat? No. Moving on.','Not bad. For a dog.'];
 var MILE={5:'Five deaths. A personal record? Sure, let us say yes.',10:'Ten deaths. At this point it is a hobby.',25:'25 deaths. The cat is making popcorn.',50:'50 deaths. I am calling the vet. For me.',100:'100 deaths. Honestly, impressive.'};
@@ -735,6 +777,7 @@ function hud(){
 function loadLevel(i,withCap,prefix){
   clearNarr();
   lvlIndex=i;Lcur=parse(LEVELS[i].rows);G=newState(Lcur);G.rec=true;curW=LEVELS[i].w||'sun';initWeather();initCrv();parts=[];fts=[];poops=[];splats=[];attempts=0;lastBones=0;idleFrames=0;idleSaid=false;
+  lvlT=pendingT;lvlD=pendingD;pendingT=0;pendingD=0;tmrShown=-1;
   hud();save();
   if(withCap){
     showCap(LEVELS[i].cap,3000);
@@ -745,7 +788,7 @@ function loadLevel(i,withCap,prefix){
 }
 function restart(){G=newState(Lcur);G.rec=true;initCrv();parts=[];fts=[];poops=[];splats=[];lastBones=0;hud();}
 function onDeath(){
-  deaths++;hud();save();deadT=0.55;shake=calm?0:1;attempts++;
+  deaths++;lvlD++;hud();save();deadT=0.55;shake=calm?0:1;attempts++;
   var p=G.p;
   for(var i=0;i<14;i++)parts.push({x:p.x+PW/2,y:p.y+PH/2,vx:(Math.random()-0.5)*8,vy:-Math.random()*8-2,life:1});
   sfxDeath(G.cause);
@@ -759,8 +802,7 @@ function onDeath(){
 }
 function nextLevel(){
   if(lvlIndex+1>=LEVELS.length){
-    var d=deaths;
-    showSheet('You made it home!','Deaths: '+d+'. Bones: '+bonesTotal+'. The cat kept the rest.','Play again',function(){deaths=0;bonesTotal=0;fakeShown=false;said={};hideSheet();loadLevel(0,true);});
+    showStats();
     try{localStorage.removeItem(SAVE_KEY);}catch(e){}
     return;
   }
@@ -790,6 +832,7 @@ function handleEvents(){
     else if(e==='meow')sfx('meow');
     else if(e==='ding')sfx('ding');
     else if(e==='purr')sfx('purr');
+    else if(e==='hop1'||e==='hop2'||e==='hop3'){if(Lcur.hops.length){sfx('pop');if(e==='hop1')sayOnce('hop1','It moved. Do not take it personally.',2600);else if(e==='hop2')sayOnce('hop2','Moved again. A very shy doghouse.',2600);else sayOnce('hop3','Four doghouses. Three of them are lying.',3000);}}
     else if(e==='gust'){sfx('gust');sayOnce('gust','Wind. Even the weather is against you.',2600);}
     else if(e==='boing'){sfx('boing');springAnim=0.2;sayOnce('boing','Boing. Dogs were born for this.',2400);}
     else if(e==='key'){sfx('key');sayOnce('key','A key! Surely not a trap. (It is not.)',2600);}
@@ -821,14 +864,20 @@ function tick(){
   }
   if(bonkFx)bonkFx.age+=DT;if(birdFx)birdFx.age+=DT;
   for(i=splats.length-1;i>=0;i--){splats[i].age+=DT;if(splats[i].age>3)splats.splice(i,1);}
+  if(!G.won)lvlT+=DT;
+  var tq=Math.floor(lvlT);if(tq!==tmrShown){tmrShown=tq;var te=$('tmr');if(te)te.textContent=fmtT(lvlT,false);}
   if(G.dead){deadT-=DT;if(deadT<=0)restart();return;}
   if(G.won){winT-=DT;if(winT<=0){winT=1e9;nextLevel();}return;}
   step(G,inp);
   handleEvents();
   if(G.dead)onDeath();
   else if(G.won){
-    winT=0.7;bonesTotal+=G.bones;hud();save();
-    showCap('Doghouse! Bones: '+G.bones+(G.bones>0?'. Good dog.':'.'),800);
+    winT=0.7;bonesTotal+=G.bones;
+    times[lvlIndex]=Math.round(lvlT*10)/10;lvlDs[lvlIndex]=lvlD;
+    var nb=(bests[lvlIndex]==null||times[lvlIndex]<bests[lvlIndex]);if(nb)bests[lvlIndex]=times[lvlIndex];
+    try{localStorage.setItem(BEST_KEY,JSON.stringify({lv:bests,total:bestTotal}));}catch(e){}
+    hud();save();
+    showCap('Doghouse! '+fmtT(lvlT,true)+(nb&&bests.length>0&&lvlD>=0?'':'')+' \u00b7 Bones: '+G.bones+(G.bones>0?'. Good dog.':'.'),900);
     sfx('bark');sfx('win');
     var capN=LEVELS[lvlIndex].cap;
     if(capN==='Almost there.'){winT=3.6;birdFx={age:0};setTimeout(function(){sfx('squirrel');floatText('HEY!',G.door.x+1.5,G.door.y-0.4);narrate('A bird. Of course. It took the bone. Bones: 0 of 1.',3000);},900);}
@@ -1250,6 +1299,8 @@ function draw(t){
       if(s.s<3)drawSpikesDown(tp.x,s.y,T);
     }else if(tp.type==='X'){
       drawHouse(tp.x,tp.y,T,true,t);
+    }else if(tp.type==='H'){
+      if(Lcur.hops.length&&G.door.hop>=Lcur.hops.length)drawHouse(tp.x,tp.y,T,true,t);
     }else if(tp.type==='b'||tp.type==='r'){
       if(s.s===0)drawBone(tp.x,tp.y,T,t);
     }else if(tp.type==='o'){
@@ -1420,6 +1471,53 @@ showSheet('Sneaky Yard','Reach the doghouse. Bones are tasty, but some bite back
       else done(legacyCopy(el));
     });
   })(btns[i]);
+})();
+
+
+function fmtT(t,dec){
+  t=Math.max(0,t);var h=Math.floor(t/3600),m=Math.floor((t%3600)/60),sc=t%60;
+  var ss=dec?(sc<10?'0':'')+sc.toFixed(1):(sc<10?'0':'')+Math.floor(sc);
+  return h>0?h+':'+(m<10?'0':'')+m+':'+ss:m+':'+ss;
+}
+function runTotal(){var t=0;for(var i=0;i<LEVELS.length;i++)t+=(times[i]||0);return t;}
+var statsText='';
+function showStats(){
+  var tot=runTotal(),newBest=(!bestTotal||tot<bestTotal);
+  var prev=bestTotal;
+  if(newBest){bestTotal=Math.round(tot*10)/10;try{localStorage.setItem(BEST_KEY,JSON.stringify({lv:bests,total:bestTotal}));}catch(e){}}
+  $('stSub').textContent='The cat kept the rest of the bones.';
+  var sum=$('stSum');sum.textContent='';
+  function chip(l,v){var d=document.createElement('span');d.appendChild(document.createTextNode(l+' '));var b=document.createElement('b');b.textContent=v;d.appendChild(b);sum.appendChild(d);}
+  chip('Time',fmtT(tot,true));chip('Deaths',deaths);chip('Bones',bonesTotal);
+  if(prev&&!newBest)chip('Best',fmtT(prev,true));else if(newBest)chip('','New best!');
+  var body=$('stBody');body.textContent='';
+  var worstD=-1,worstI=-1;
+  for(var i=0;i<LEVELS.length;i++){
+    var tr=document.createElement('tr'),c;
+    c=document.createElement('td');c.textContent=i+1;tr.appendChild(c);
+    c=document.createElement('td');c.textContent=LEVELS[i].cap;tr.appendChild(c);
+    c=document.createElement('td');c.textContent=times[i]!=null?fmtT(times[i],true):'-';if(times[i]!=null&&bests[i]!=null&&times[i]<=bests[i])c.className='bst';tr.appendChild(c);
+    c=document.createElement('td');c.textContent=lvlDs[i]!=null?lvlDs[i]:'-';tr.appendChild(c);
+    body.appendChild(tr);
+    if((lvlDs[i]||0)>worstD){worstD=lvlDs[i]||0;worstI=i;}
+  }
+  statsText='Sneaky Yard \u{1F415}\nHome in '+fmtT(tot,true)+' · '+deaths+' deaths · '+bonesTotal+' bones'+(worstI>=0&&worstD>0?'\nHardest yard: "'+LEVELS[worstI].cap+'" ('+worstD+' deaths)':'')+'\nPlay: https://t.me/sneaky_yard_game_bot/sneakyyard';
+  sheetOpen=true;$('stats').hidden=false;try{$('stBody').parentNode.scrollTop=0;}catch(e){}
+}
+(function(){
+  var st=document.getElementById('stats');
+  function legacy(t){try{var ta=document.createElement('textarea');ta.value=t;ta.setAttribute('readonly','');ta.style.cssText='position:fixed;left:-9999px;top:0;opacity:0';document.body.appendChild(ta);ta.select();ta.setSelectionRange(0,t.length);var ok=document.execCommand('copy');document.body.removeChild(ta);return ok;}catch(e){return false;}}
+  var cb=document.getElementById('stCopy');
+  cb.addEventListener('click',function(){
+    var t=statsText,old='Copy result';
+    function done(ok){cb.textContent=ok?'Copied!':'Copy failed';setTimeout(function(){cb.textContent=old;},2200);}
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){done(true);},function(){done(legacy(t));});}
+    else done(legacy(t));
+  });
+  document.getElementById('stAgain').addEventListener('click',function(){
+    deaths=0;bonesTotal=0;fakeShown=false;said={};times=[];lvlDs=[];pendingT=0;pendingD=0;
+    st.hidden=true;sheetOpen=false;loadLevel(0,true);
+  });
 })();
 
 })();
