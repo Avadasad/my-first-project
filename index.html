@@ -134,7 +134,7 @@ html,body{overscroll-behavior:none;touch-action:none}
 .addr button{background:var(--sky-line);color:var(--ink)}
 .hclose{background:var(--accent);color:var(--on-accent)}
 .heart svg{fill:var(--accent)}
-.tmr{font-family:var(--font-body);font-weight:700;font-size:13px;color:var(--muted);margin-left:8px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tmr{position:absolute;left:8px;bottom:6px;z-index:3;font-family:var(--font-body);font-weight:700;font-size:13px;color:var(--ink);opacity:.75;font-variant-numeric:tabular-nums;white-space:nowrap;pointer-events:none;text-shadow:0 1px 3px rgba(0,0,0,.6)}
 .stcard{max-width:460px;max-height:100%;overflow:hidden;grid-template-rows:auto auto auto minmax(0,1fr) auto}
 .stcard h2{margin:0}
 .stsum{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:14px;color:var(--muted)}
@@ -149,6 +149,7 @@ html,body{overscroll-behavior:none;touch-action:none}
 .sttab td:nth-child(2){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sttab .bst{color:var(--accent);font-weight:700}
 .sec2{background:transparent;border:1px solid var(--sky-line);border-radius:10px;padding:11px;font-weight:700;color:var(--ink);width:100%;margin-top:8px}
+@media (max-width:520px){.top .deaths{font-size:0}.top .deaths b{font-size:17px}#bones::before,#deaths::before{font-size:12px;margin-right:3px;font-weight:400;color:var(--ink)}#bones::before{content:'\1F9B4'}#deaths::before{content:'\1F480';margin-left:8px}}
 .stbtns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .stbtns .sec{background:transparent;border:1px solid var(--sky-line);border-radius:10px;padding:12px;font-weight:700}
 .top{flex-wrap:nowrap}.lvl,.deaths{white-space:nowrap}
@@ -168,12 +169,13 @@ html,body{overscroll-behavior:none;touch-action:none}
 
 <main class="app">
   <header class="top">
-    <div class="lvl"><small>Level</small><span id="lvl">1 of 10</span><span class="tmr" id="tmr">0:00</span></div>
+    <div class="lvl"><small>Level</small><span id="lvl">1 of 10</span></div>
     <div class="right"><div class="deaths">Bones <b id="bones">0</b> &nbsp; Deaths <b id="deaths">0</b></div><button class="mute hbtn heart" id="helpBtn" type="button" aria-label="Help the street dogs"><svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.8-9.6-9.4C.9 8.2 3 4.8 6.4 4.8c2.2 0 4 1.2 5.6 3.2 1.6-2 3.4-3.2 5.6-3.2 3.4 0 5.5 3.4 4 6.8C19.500 16.200 12 21 12 21z"/></svg></button><button class="mute hbtn" id="redo" type="button" aria-label="Restart level"><svg viewBox="0 0 24 24"><path d="M12 5V2L7 6l5 4V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z"/></svg></button><button class="mute hbtn" id="mute" type="button" aria-label="Sound on or off"><svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 4V5L7 9z"/><path class="wave" d="M15 8.5a5 5 0 0 1 0 7M17.5 6a8.5 8.5 0 0 1 0 12" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/><path class="x" d="M15 9l6 6m0-6l-6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></button></div>
   </header>
   <div class="stage" id="stage">
     <canvas id="game" aria-label="Game field"></canvas>
     <p class="rot">Tip: turn your phone sideways for a bigger game.</p>
+    <span class="tmr" id="tmr">0:00</span>
     <p class="cap off" id="cap"></p>
     <div class="pad">
       <div class="pad-l">
@@ -248,7 +250,7 @@ var LEVELS=[
  {cap:'Bird brain.',w:'dusk',rows:[WALL,E,E,E,E,'#..r..b..r....B#','#P...s...o....D#',WALL,WALL]},
  {cap:'Boxed in.',w:'sun',rows:[WALL,E,E,E,'#........r.....#','#........#.....#','#P..x....#..rD.#',WALL,WALL]},
  {cap:'Two fat cats.',w:'wind',rows:[WALL,E,E,E,'#.r...r........#',E,'#P..c....c..s.D#',WALL,WALL]},
- {cap:'Bridge work.',w:'rain',rows:[WALL,E,E,E,E,E,'#Prx.xr.......D#','#######.....####','#######^^^^^####']},
+ {cap:'Bridge work.',w:'rain',rows:[WALL,E,E,E,E,E,'#Pbx.xb.......D#','#######.....####','#######^^^^^####']},
  {cap:'Two floors.',w:'cloud',rows:[WALL,E,E,'#P....c....r...#','###########....#','#.....r........#','#.D.....c..s...#',WALL,WALL]},
  {cap:'Leash, round two.',w:'dusk',rows:[WALL,E,E,E,'#.....Z........#','#....###.......#','#P.x.#....c.s.D#',WALL,WALL]},
  {cap:'Short one.',w:'cloud',rows:[WALL,E,E,E,E,E,'#P...D.........#',WALL,WALL]},
@@ -300,7 +302,7 @@ var LEVELS=[
  {cap:'Reverse psychology.',w:'sun',rows:[WALL,E,E,E,E,E,'#D..s....c...P.#',WALL,WALL]},
  {cap:'Almost there, again.',w:'dusk',rows:[WALL,E,E,E,E,E,'#P..s..n..s.b.D#',WALL,WALL]},
  {cap:'Musical doghouses.',w:'sun',rows:[WALL,E,E,E,E,E,'#P2.D..H.3sH.H1#',WALL,WALL]},
- {cap:'Hardcore. You were warned.',w:'night',rows:[WALL,'#......k.......#',E,E,E,'#.....q.....q..#','#P.s..c..s.m.sD#','#####ff###ff####','#####^^###^^####']},
+ {cap:'Hardcore. You were warned.',w:'night',rows:[WALL,E,E,E,E,'#.....q.....q..#','#P.s..c..s.m.sD#','#####ff###ff####','#####^^###^^####']},
  {cap:'Last yard. Everything at once.',w:'dusk',rows:[WALL,'#..........k...#',E,E,'#.......r......#',E,'#P.o..s...rc.XD#','#######ff#######','#######^^#######']}
 ];
 
