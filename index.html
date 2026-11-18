@@ -228,7 +228,7 @@ try{var tg=window.Telegram&&window.Telegram.WebApp;if(tg){tg.ready();tg.expand()
 
 /* ======================= CORE (no DOM) ======================= */
 var GW=16,GH=9,DT=1/60,HN=28,SPRING=16,BELT=2.6,GUST=2.6;
-var PW=0.62,PH=0.62,GRAV=38,JUMP=11.2,SPEED=5.6,MAXFALL=18;
+var PW=0.62,PH=0.62,GRAV=38,JUMP=11.2,JMIN=0.05,JCUT=5,SPEED=5.6,MAXFALL=18;
 
 var E='#..............#',WALL='################';
 var LEVELS=[
@@ -353,7 +353,7 @@ function parse(rows){
 }
 function newState(L,rnd){
   rnd=rnd||Math.random;
-  var G={bones:0,cause:'',cut:false,ev:[],rec:false,blk:null,L:L,p:{x:L.start.x+(1-PW)/2,y:L.start.y+1-PH,vx:0,vy:0,ground:false,coy:0,face:1,tight:false,dist:0,push:0},tr:[],cr:[],door:{x:L.door.x,y:L.door.y,moved:false,hop:0},dead:false,won:false,t:0,gopen:false,key:false,atd:false,h:null};
+  var G={bones:0,cause:'',cut:false,ev:[],rec:false,blk:null,L:L,p:{x:L.start.x+(1-PW)/2,y:L.start.y+1-PH,vx:0,vy:0,ground:false,coy:0,face:1,tight:false,dist:0,push:0,jt:0,jmp:false},tr:[],cr:[],door:{x:L.door.x,y:L.door.y,moved:false,hop:0},dead:false,won:false,t:0,gopen:false,key:false,atd:false,h:null};
   for(var i=0;i<L.traps.length;i++){
     var tp=L.traps[i],ty=tp.type;
     var tm=ty==='w'?(i%3)*1.0:ty==='V'?(i%3)*1.0:ty==='Y'?0.9:ty==='q'?2.0+(i%3)*0.9:ty==='B'?(17-tp.x)/3:0;
@@ -368,7 +368,7 @@ function newState(L,rnd){
   return G;
 }
 function clone(G){
-  return {bones:G.bones,cause:G.cause,cut:G.cut,ev:[],rec:false,blk:null,L:G.L,p:{x:G.p.x,y:G.p.y,vx:G.p.vx,vy:G.p.vy,ground:G.p.ground,coy:G.p.coy,face:G.p.face,tight:G.p.tight,dist:G.p.dist,push:G.p.push},
+  return {bones:G.bones,cause:G.cause,cut:G.cut,ev:[],rec:false,blk:null,L:G.L,p:{x:G.p.x,y:G.p.y,vx:G.p.vx,vy:G.p.vy,ground:G.p.ground,coy:G.p.coy,face:G.p.face,tight:G.p.tight,dist:G.p.dist,push:G.p.push,jt:G.p.jt,jmp:G.p.jmp},
     tr:G.tr.map(function(a){return {s:a.s,tm:a.tm,y:a.y,vy:a.vy,x:a.x,dir:a.dir,hold:a.hold,bad:a.bad,sd:a.sd};}),
     cr:G.cr.map(function(c){return {x:c.x,y:c.y,ft:c.ft,fl:c.fl};}),
     door:{x:G.door.x,y:G.door.y,moved:G.door.moved,hop:G.door.hop},dead:G.dead,won:G.won,t:G.t,gopen:G.gopen,key:G.key,atd:G.atd,h:G.h?G.h.slice():null};
@@ -437,7 +437,7 @@ function moveX(G,dx){
 function moveY(G,dy){
   var p=G.p;p.y+=dy;
   var l=Math.floor(p.x+0.001),r=Math.floor(p.x+PW-0.001),x,cy;
-  if(dy>0){cy=Math.floor(p.y+PH);for(x=l;x<=r;x++)if(solid(G,x,cy)||(G.L.tiles[cy]&&G.L.tiles[cy][x]==='='&&p.y-dy+PH<=cy+0.001)){p.y=cy-PH-0.0001;if(G.L.tiles[cy]&&G.L.tiles[cy][x]==='S'){p.vy=-SPRING;p.ground=false;emit(G,'boing');}else{p.vy=0;p.ground=true;}break;}}
+  if(dy>0){cy=Math.floor(p.y+PH);for(x=l;x<=r;x++)if(solid(G,x,cy)||(G.L.tiles[cy]&&G.L.tiles[cy][x]==='='&&p.y-dy+PH<=cy+0.001)){p.y=cy-PH-0.0001;if(G.L.tiles[cy]&&G.L.tiles[cy][x]==='S'){p.vy=-SPRING;p.jmp=false;p.ground=false;emit(G,'boing');}else{p.vy=0;p.ground=true;}break;}}
   else if(dy<0){cy=Math.floor(p.y);for(x=l;x<=r;x++)if(solid(G,x,cy)){p.y=cy+1+0.0001;p.vy=0;break;}}
 }
 function updateTraps(G){
@@ -461,7 +461,7 @@ function updateTraps(G){
     }else if(tp.type==='V'){
       var ph0=t.tm;t.tm=(t.tm+DT)%3;
       if(ph0<2&&t.tm>=2)emit(G,'geys');
-      if(t.tm>=2&&t.tm<2.9&&Math.abs(pcx-cx)<0.5&&pcy>cy-2.3&&pcy<cy+0.6){p.vy=Math.min(p.vy,-10);p.ground=false;}
+      if(t.tm>=2&&t.tm<2.9&&Math.abs(pcx-cx)<0.5&&pcy>cy-2.3&&pcy<cy+0.6){p.vy=Math.min(p.vy,-10);p.jmp=false;p.ground=false;}
     }else if(tp.type==='c'){
       if(t.hold>0)t.hold-=DT;
       else if(Math.abs(pcx-t.x)<2.6&&Math.abs(pcy-(tp.y+0.6))<1.2){emit(G,'meow');t.hold=3;}
@@ -554,7 +554,8 @@ function step(G,inp){
   if(p.dist>0){dir=0;p.dist-=DT;}
   if(dir)p.face=dir;
   if(G.L.slick&&p.ground){var tv2=dir*SPEED,dv2=(dir===0?3.2:15)*DT;if(p.vx<tv2)p.vx=Math.min(tv2,p.vx+dv2);else p.vx=Math.max(tv2,p.vx-dv2);}else p.vx=dir*SPEED;
-  if(inp.j&&(p.ground||p.coy>0)){p.vy=-JUMP;p.ground=false;p.coy=0;emit(G,'jump');}
+  if(inp.j&&(p.ground||p.coy>0)){p.vy=-JUMP;p.ground=false;p.coy=0;p.jmp=true;p.jt=0;emit(G,'jump');}
+  if(p.jmp){p.jt+=DT;if(p.vy>=0)p.jmp=false;else if(!inp.j&&p.jt>=JMIN&&p.vy<-JCUT){p.vy=-JCUT;p.jmp=false;}}
   p.vy=Math.min(p.vy+GRAV*DT,MAXFALL);
   G.blk=null;
   var belt=0;if(p.ground){var bt=G.L.tiles[Math.floor(p.y+PH+0.02)];bt=bt&&bt[Math.floor(p.x+PW/2)];belt=bt==='>'?BELT:bt==='<'?-BELT:0;}
@@ -1287,7 +1288,7 @@ function drawGloss(T,t){
 function drawSquirrel(x,y,T,t,dir){
   dir=dir||1;
   var sw=Math.sin(t*5)*T*0.04,bob=Math.sin(t*14)*T*0.012;
-  ctx.save();ctx.translate(x,y+bob);ctx.scale(dir,1);
+  ctx.save();ctx.translate(x,y+bob);ctx.scale(dir*0.5,0.5);
   var ol='#3a2414',fur='#a0693a',dk='#7a4a26',lt='#e9d3ad',tail='#c98a4b';
   ctx.lineWidth=Math.max(1.5,T*0.035);ctx.strokeStyle=ol;ctx.lineJoin='round';
   // tail (big curl)
@@ -1371,7 +1372,7 @@ function drawGag(t,T){
   }else if(k==='squirrel'&&a>0.1){
     var sx=a<1.0?(dx+0.5+3*(1-Math.min(1,a/0.9)))*T:(dx+0.5)*T;
     var sy=(a<1.0?dy+0.98:dy+0.55+gagOff().y)*T;
-    ctx.save();ctx.translate(sx,sy);ctx.scale(1.35,1.35);ctx.translate(-sx,-sy);drawSquirrel(sx,sy,T,t,-1);ctx.restore();
+    ctx.save();ctx.translate(sx,sy);ctx.scale(1.2,1.2);ctx.translate(-sx,-sy);drawSquirrel(sx,sy,T,t,-1);ctx.restore();
   }else if(k==='pack'){
     var px=dx+(dx>=13?-1.2:1.2),pu=Math.min(1,a/0.5),py=dy-3*(1-pu)*(1-pu);
     if(a<1.3){var sh=a>0.5?Math.sin(a*40)*0.04:0;drawCrate(px+sh,py,T);}
@@ -1712,12 +1713,13 @@ function newGame(){
 })();
 
 
-var SECN=8,SECKEY='podlyi-dvor-secrets',secs=[],secSt={t:0,done:false},secFx=[];
+var SECN=9,SECKEY='podlyi-dvor-secrets',secs=[],secSt={t:0,done:false},secFx=[];
 var SEC={
  'Squirrel crossing.':{id:'sq1',k:'squirrel'},'Treehouse.':{id:'sq2',k:'squirrel'},
  'Just walk to the doghouse. What could go wrong?':{id:'wl1',k:'wall'},'Short one.':{id:'wl2',k:'wall'},'Intermission.':{id:'wl3',k:'wall'},
  'Cat on duty.':{id:'ct1',k:'cat'},'Two fat cats.':{id:'ct2',k:'cat'},
- 'A walk in the park.':{id:'st1',k:'still'}
+ 'A walk in the park.':{id:'st1',k:'still'},
+ 'Geyser lift.':{id:'wr1',k:'wall',dir:1}
 };
 try{secs=JSON.parse(localStorage.getItem(SECKEY)||'[]')||[];}catch(e){secs=[];}
 function secReset(){secSt={t:0,done:false};secFx=[];}
@@ -1736,8 +1738,9 @@ function secretTick(){
   var def=SEC[LEVELS[lvlIndex].cap];if(!def||secSt.done)return;
   var p=G.p,pcx=p.x+PW/2,anyIn=inp.l||inp.r||inp.j;
   if(def.k==='wall'){
-    if(inp.l&&!inp.r&&p.x<=1.05&&p.ground)secSt.t+=DT;else secSt.t=0;
-    if(secSt.t>=2)secAward(def,0.6,p.y+0.2);
+    var wd=def.dir||-1,atw=wd<0?(inp.l&&!inp.r&&p.x<=1.05):(inp.r&&!inp.l&&p.x>=GW-1-PW-0.06);
+    if(atw&&p.ground)secSt.t+=DT;else secSt.t=0;
+    if(secSt.t>=2)secAward(def,wd<0?0.6:GW-0.6,p.y+0.2);
   }else if(def.k==='still'){
     if(!anyIn&&p.ground)secSt.t+=DT;else secSt.t=0;
     if(secSt.t>=10){secSt.done=true;secFx.push({k:'pup',age:0});G.bones++;sfx('bark');sfx('bone');
