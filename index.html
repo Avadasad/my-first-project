@@ -227,7 +227,7 @@ html,body{overscroll-behavior:none;touch-action:none}
 try{var tg=window.Telegram&&window.Telegram.WebApp;if(tg){tg.ready();tg.expand();if(tg.disableVerticalSwipes)tg.disableVerticalSwipes();try{tg.setHeaderColor('#0e2a30');tg.setBackgroundColor('#0e2a30');}catch(e){}}}catch(e){}
 
 /* ======================= CORE (no DOM) ======================= */
-var GW=16,GH=9,DT=1/60,HN=28,SPRING=16,BELT=2.6,GUST=2.6;
+var GW=16,GH=9,DT=1/60,HN=28,SPRING=16,BELT=2.6,GUST=2.6,NPER={'!':4.6,'*':3.4,'%':4.0},NWARN={'!':0.45,'*':0.55,'%':0.7},NR={'!':99,'*':5,'%':8},SCARE=0.5;
 var PW=0.62,PH=0.62,GRAV=38,JUMP=11.2,JMIN=0.05,JCUT=5,SPEED=5.6,MAXFALL=18;
 
 var E='#..............#',WALL='################';
@@ -284,6 +284,7 @@ var LEVELS=[
  {cap:'Bones on the belt.',w:'sun',rows:[WALL,E,E,E,E,E,'#P..r...r.^^..D#','###>>>>>>>>#####',WALL]},
  {cap:'Old Faithful.',w:'sun',rows:[WALL,E,E,E,'#.......#......#','#.......#......#','#P...V..#..s.D.#',WALL,WALL]},
  {cap:'Almost there.',w:'sun',rows:[WALL,E,E,E,E,E,'#Pn.......b...D#',WALL,WALL]},
+ {cap:'Return to sender.',w:'sun',rows:[WALL,E,E,E,E,E,'#P.n..T..T.b.D.#',WALL,WALL]},
  {cap:'Two floors, two balls.',w:'cloud',rows:[WALL,E,E,'#P.....Q.......#','###########....#',E,'#.D.....Q..s...#',WALL,WALL]},
  {cap:'Key to the puppy.',w:'dusk',rows:[WALL,E,'#..........L...#','#..........L...#','#..........L...#','#.......K......#','#Py.s..##..L.sD#',WALL,WALL]},
  {cap:'Behind you.',w:'sun',rows:[WALL,E,E,E,E,E,'#D..s...c...P.n#',WALL,WALL]},
@@ -296,15 +297,23 @@ var LEVELS=[
  {cap:'Stage fright.',w:'dusk',rows:[WALL,'#.....k..k.....#',E,E,E,'#....q.........#','#P...........D.#',WALL,WALL]},
  {cap:'Wrong way, with an audience.',w:'night',rows:[WALL,'#...k....k.....#',E,E,E,'#....q.........#','#D..s........P.#',WALL,WALL]},
  {cap:'Geyser lift.',w:'dusk',rows:[WALL,E,E,'#.........c..D.#','#......#########',E,'#P..V..........#',WALL,WALL]},
+ {cap:'Two floors, one return.',w:'dusk',rows:[WALL,E,E,'#.......T..D...#','#......#########',E,'#P.n.V.....T.s.#',WALL,WALL]},
  {cap:'Cat parade.',w:'cloud',rows:[WALL,E,E,E,E,E,'#P..c....c...D.#','###<<<<<<<<<<###',WALL]},
  {cap:'Staircase, but upstairs.',w:'night',rows:[WALL,E,E,'#..........m.D.#','#..........#####','#.......##.#####','#P.s.##.##.#####',WALL,WALL]},
  {cap:'Rainy mail.',w:'rain',rows:[WALL,E,E,E,E,E,'#P.m...Q.....D.#',WALL,WALL]},
  {cap:'Wet floor.',w:'rain',rows:[WALL,'#i.............#',E,E,E,E,'#P...s...s..s.D#',WALL,WALL]},
+ {cap:'Thunder.',w:'rain',rows:[WALL,E,E,E,E,'#P...........!D#','#####..##..#####','#####^^##^^#####',WALL]},
+ {cap:'Bang.',w:'dusk',rows:[WALL,E,E,E,E,'#P.......*....D#','####..#..###..##','####^^#^^###^^##',WALL]},
+ {cap:'Rocket science.',w:'cloud',rows:[WALL,E,E,E,E,'#P.........%..D#','####..##..##.###','####^^##^^##^###',WALL]},
+ {cap:'Wet thunder.',w:'rain',rows:[WALL,E,E,E,E,'#Pi..........!D#','#####..##..#####','#####^^##^^#####',WALL]},
+ {cap:'Noise complaint.',w:'dusk',rows:[WALL,E,E,E,E,'#P...*...!..%.D#','#######..##..###','#######^^##^^###',WALL]},
  {cap:'Bone lottery.',w:'sun',rows:[WALL,E,E,E,E,E,'#P.r..s..r..s.D#',WALL,WALL]},
  {cap:'Fake out.',w:'night',rows:[WALL,E,E,E,E,E,'#P.X..X..s..X.D#',WALL,WALL]},
  {cap:'Windy birds.',w:'wind',rows:[WALL,'#~.............#',E,E,E,'#.......B......#','#P............D#',WALL,WALL]},
+ {cap:'Windy return.',w:'wind',rows:[WALL,'#~.............#',E,E,E,E,'#P.n...T..c...D#',WALL,WALL]},
  {cap:'Windy islands.',w:'wind',rows:[WALL,'#~.............#','#.............D#','#.........c..==#','#.....s..===...#','#P...===.......#','#===...........#','#^^^^^^^^^^^^^^#',WALL]},
  {cap:'Water park.',w:'rain',rows:[WALL,'#i.............#',E,E,E,'#.......#......#','#P...V..#..s.D.#',WALL,WALL]},
+ {cap:'Slippery return.',w:'rain',rows:[WALL,'#i.............#',E,E,E,E,'#P.n..T..s..T.D#',WALL,WALL]},
  {cap:'Trust fall.',w:'sun',rows:[WALL,E,E,E,E,E,'#P.b.........D.#','####ff###ff#####','####^^###^^#####']},
  {cap:'Elevator.',w:'night',rows:[WALL,'#........k.....#',E,'#.........s..D.#','#......#########','#......#########','#P...V.#########',WALL,WALL]},
  {cap:'Squirrel crossing.',w:'dusk',rows:[WALL,'#.....k..k.....#',E,E,E,'#...q.....q....#','#P.....s.....D.#',WALL,WALL]},
@@ -321,6 +330,7 @@ var LEVELS=[
  {cap:'Floating islands, angry.',w:'night',rows:[WALL,'#..D...k.......#','#====..........#','#.....====...s.#','#.......c..====#','#P.s..====.....#','#====..........#','#^^^^^^^^^^^^^^#',WALL]},
  {cap:'Almost there, again.',w:'dusk',rows:[WALL,E,E,E,E,E,'#P..s..n..s.b.D#',WALL,WALL]},
  {cap:'Musical doghouses.',w:'sun',rows:[WALL,E,E,E,E,E,'#P2.D..H.3sH.H1#',WALL,WALL]},
+ {cap:'Musical return.',w:'night',rows:[WALL,E,E,E,E,E,'#P1.T..T.2.sH.D#',WALL,WALL]},
  {cap:'Hardcore. You were warned.',w:'night',rows:[WALL,E,E,E,E,'#.....q.....q..#','#P.s........c.D#','#####ff###ff####','#####^^###^^####']},
  {cap:'Last yard. Everything at once.',w:'dusk',rows:[WALL,'#..........k...#',E,E,'#.......r......#',E,'#P.o..s...rc.XD#','#######ff#######','#######^^#######']}
 ];
@@ -343,7 +353,7 @@ function parse(rows){
       else if(c==='y')L.pup=true;
       else if(c==='~')L.wind=true;
       else if(c==='i')L.slick=true;
-      else if('sfkXbocmwZqBruKQYJHV'.indexOf(c)>=0){L.traps.push({type:c,x:x,y:y});ct[x]=L.traps.length-1;}
+      else if('sfkXbocmwZqBruKQYJHVT!*%'.indexOf(c)>=0){L.traps.push({type:c,x:x,y:y});ct[x]=L.traps.length-1;}
       tr.push(t);
     }
     L.tiles.push(tr);L.cellTrap.push(ct);
@@ -353,10 +363,10 @@ function parse(rows){
 }
 function newState(L,rnd){
   rnd=rnd||Math.random;
-  var G={bones:0,cause:'',cut:false,ev:[],rec:false,blk:null,L:L,p:{x:L.start.x+(1-PW)/2,y:L.start.y+1-PH,vx:0,vy:0,ground:false,coy:0,face:1,tight:false,dist:0,push:0,jt:0,jmp:false},tr:[],cr:[],door:{x:L.door.x,y:L.door.y,moved:false,hop:0},dead:false,won:false,t:0,gopen:false,key:false,atd:false,h:null};
+  var G={bones:0,cause:'',cut:false,ev:[],rec:false,blk:null,L:L,p:{x:L.start.x+(1-PW)/2,y:L.start.y+1-PH,vx:0,vy:0,ground:false,coy:0,face:1,tight:false,dist:0,push:0,jt:0,jmp:false,scare:0,sdir:0},tr:[],cr:[],door:{x:L.door.x,y:L.door.y,moved:false,hop:0},dead:false,won:false,t:0,gopen:false,key:false,atd:false,h:null};
   for(var i=0;i<L.traps.length;i++){
     var tp=L.traps[i],ty=tp.type;
-    var tm=ty==='w'?(i%3)*1.0:ty==='V'?(i%3)*1.0:ty==='Y'?0.9:ty==='q'?2.0+(i%3)*0.9:ty==='B'?(17-tp.x)/3:0;
+    var tm=ty==='w'?(i%3)*1.0:ty==='V'?(i%3)*1.0:(ty==='!'||ty==='*'||ty==='%')?NPER[ty]-1.8-(i%3)*0.7:ty==='Y'?0.9:ty==='q'?2.0+(i%3)*0.9:ty==='B'?(17-tp.x)/3:0;
     var o={s:0,tm:tm,y:tp.y,vy:0,x:tp.x+0.5,dir:-1,hold:0,bad:ty==='o'||(ty==='r'&&rnd()<0.5),sd:Math.floor(rnd()*4294967295)+1};
     if(ty==='c'){o.tm=0.8+rnd()*2.2;o.dir=rnd()<0.5?-1:1;}
     if(ty==='m'){o.vy=1.2+rnd()*2;}
@@ -368,7 +378,7 @@ function newState(L,rnd){
   return G;
 }
 function clone(G){
-  return {bones:G.bones,cause:G.cause,cut:G.cut,ev:[],rec:false,blk:null,L:G.L,p:{x:G.p.x,y:G.p.y,vx:G.p.vx,vy:G.p.vy,ground:G.p.ground,coy:G.p.coy,face:G.p.face,tight:G.p.tight,dist:G.p.dist,push:G.p.push,jt:G.p.jt,jmp:G.p.jmp},
+  return {bones:G.bones,cause:G.cause,cut:G.cut,ev:[],rec:false,blk:null,L:G.L,p:{x:G.p.x,y:G.p.y,vx:G.p.vx,vy:G.p.vy,ground:G.p.ground,coy:G.p.coy,face:G.p.face,tight:G.p.tight,dist:G.p.dist,push:G.p.push,jt:G.p.jt,jmp:G.p.jmp,scare:G.p.scare,sdir:G.p.sdir},
     tr:G.tr.map(function(a){return {s:a.s,tm:a.tm,y:a.y,vy:a.vy,x:a.x,dir:a.dir,hold:a.hold,bad:a.bad,sd:a.sd};}),
     cr:G.cr.map(function(c){return {x:c.x,y:c.y,ft:c.ft,fl:c.fl};}),
     door:{x:G.door.x,y:G.door.y,moved:G.door.moved,hop:G.door.hop},dead:G.dead,won:G.won,t:G.t,gopen:G.gopen,key:G.key,atd:G.atd,h:G.h?G.h.slice():null};
@@ -458,6 +468,13 @@ function updateTraps(G){
         if(solid(G,tp.x,by)){t.y=by-1;t.s=2;}
         else if(t.y>L.h+1)t.s=3;
       }
+    }else if(tp.type==='T'){
+      if(t.s===0){if(G.door.hop>=1&&Math.abs(pcx-cx)<=2.2&&Math.abs(pcy-cy)<=2.2){t.s=1;t.tm=0;emit(G,'pop');}}
+      else t.tm=Math.min(1,t.tm+DT*8);
+    }else if(tp.type==='!'||tp.type==='*'||tp.type==='%'){
+      var NP=NPER[tp.type],NW=NWARN[tp.type],tm0=t.tm;t.tm+=DT;
+      if(tm0<NP-NW&&t.tm>=NP-NW)emit(G,'w'+tp.type);
+      if(t.tm>=NP){t.tm-=NP;emit(G,'b'+tp.type);var ddx=pcx-cx;if(Math.abs(ddx)<=NR[tp.type]){p.scare=SCARE;p.sdir=ddx<0?-1:1;}}
     }else if(tp.type==='V'){
       var ph0=t.tm;t.tm=(t.tm+DT)%3;
       if(ph0<2&&t.tm>=2)emit(G,'geys');
@@ -527,7 +544,7 @@ function deathCause(G,pup){
   for(y=y0;y<=y1;y++)for(x=x0;x<=x1;x++)if(L.tiles[y][x]==='^'&&hit(x+0.12,y+0.5,x+0.88,y+1))return 'spike';
   for(var i=0;i<L.traps.length;i++){
     var tp=L.traps[i],s=G.tr[i];
-    if(tp.type==='s'&&s.s===1&&hit(tp.x+0.12,tp.y+0.5,tp.x+0.88,tp.y+1))return 'pop';
+    if((tp.type==='s'||tp.type==='T')&&s.s===1&&hit(tp.x+0.12,tp.y+0.5,tp.x+0.88,tp.y+1))return 'pop';
     if(tp.type==='X'&&hit(tp.x+0.1,tp.y+0.05,tp.x+0.9,tp.y+1))return 'fake';
     if(tp.type==='H'&&G.L.hops.length&&G.door.hop>=G.L.hops.length&&hit(tp.x+0.1,tp.y+0.05,tp.x+0.9,tp.y+1))return 'fake';
     if(tp.type==='k'&&s.s<3&&hit(tp.x+0.2,s.y+0.1,tp.x+0.8,s.y+0.9))return 'fall';
@@ -552,6 +569,7 @@ function step(G,inp){
   var p=G.p;G.t+=DT;
   var dir=(inp.r?1:0)-(inp.l?1:0);
   if(p.dist>0){dir=0;p.dist-=DT;}
+  if(p.scare>0){dir=p.sdir;p.scare-=DT;}
   if(dir)p.face=dir;
   if(G.L.slick&&p.ground){var tv2=dir*SPEED,dv2=(dir===0?3.2:15)*DT;if(p.vx<tv2)p.vx=Math.min(tv2,p.vx+dv2);else p.vx=Math.max(tv2,p.vx-dv2);}else p.vx=dir*SPEED;
   if(inp.j&&(p.ground||p.coy>0)){p.vy=-JUMP;p.ground=false;p.coy=0;p.jmp=true;p.jt=0;emit(G,'jump');}
@@ -647,6 +665,11 @@ function noise(dur,vol,ftype,freq,delay,q){
 }
 function sfx(n){
   switch(n){
+    case 'thunder':noise(1.3,0.28,'lowpass',260,0,0.8);noise(0.12,0.3,'bandpass',1400,0,0.8);tone(70,38,0.9,'sawtooth',0.07);break;
+    case 'bang':noise(0.16,0.34,'bandpass',1800,0,0.7);noise(0.35,0.12,'lowpass',700);tone(160,60,0.14,'square',0.07);break;
+    case 'fw':noise(0.5,0.22,'lowpass',500,0,0.8);noise(0.1,0.18,'bandpass',2200);for(var fi=0;fi<7;fi++)noise(0.03,0.07,'highpass',3500,0.18+fi*0.07+(fi%3)*0.03);break;
+    case 'fuse':noise(0.55,0.05,'highpass',3200);break;
+    case 'whist':tone(500,2400,0.7,'sine',0.05);break;
     case 'jump':tone(280,640,0.13,'sine',0.11);break;
     case 'bone':noise(0.07,0.18,'bandpass',1800,0,1.2);tone(900,1400,0.09,'triangle',0.07,0.04);break;
     case 'squeak':tone(650,1500,0.1,'sine',0.14);tone(1500,950,0.1,'sine',0.12,0.1);break;
@@ -737,7 +760,7 @@ var NARR={
   34:['Puppy and the gate. Teamwork. Mostly yours.'],
   35:['Last one. Everything at once. I believe in you. Slightly.']
 };
-(function(){var N2={},OLD=[11, 21, 31, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35];Object.keys(NARR).forEach(function(k){k=+k;var sh=0;OLD.forEach(function(p){if(p<=k)sh++;});N2[k+sh]=NARR[k];});
+(function(){var N2={},OLD=[11, 21, 31, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35];Object.keys(NARR).forEach(function(k){k=+k;var sh=0;OLD.forEach(function(p){if(p<=k)sh++;});N2[k+sh]=NARR[k];});
 N2[11]=['Nothing here. I checked twice.','No spikes. No cats. I am suspicious too.','Just enjoy the walk. Smell something.'];
 N2[22]=['I made this one short. Do not thank me.','The mailman is on a break. So am I.'];
 N2[33]=['Intermission. Please return to your seats.','Buy a bone in the lobby. Dogs eat free.','Okay, enough. Back to work.'];
@@ -755,44 +778,54 @@ N2[48]=["Stairs. Every step has an opinion. The cat has the loudest one."];
 N2[49]=["Bones on a conveyor belt. A sushi bar for dogs. Be careful what you grab."];
 N2[50]=["A geyser. Free elevator. It erupts when it feels like it.", "Wait for the splash. Then fly."];
 N2[51]=["Nothing here. Really. Run.", "I would never lie to you. Much."];
-N2[52]=["Two floors, two balls. Somebody lost two balls. Probably the owner."];
-N2[53]=["A key, a puppy and a trap. I have run out of jokes. Not really."];
-N2[54]=["Left again. Run to the doghouse. Then turn around.", "I am not saying it will move. I am not saying it will not."];
-N2[55]=["Gale force wind. Hold on to your ears."];
-N2[56]=["Night. A squirrel. A pit. What could go wrong. Everything."];
-N2[57]=["Floating platforms. Squirrels. A ceiling. Everyone is invited."];
-N2[58]=["Three trees. Three squirrels. No traps. I swear on the bone.", "Those spikes? Decoration. Probably."];
-N2[59]=["Ice rink rules. Do not trust the brakes. There are none."];
-N2[60]=["Two doghouses. One is real. I will not say which."];
-N2[61]=["Stage fright. The squirrel is the audience. The ceiling is the critic."];
-N2[62]=["Left. Night. A squirrel and a ceiling. The usual."];
-N2[63]=["Geyser to the second floor. The cat is already up there."];
-N2[64]=["A cat parade. Fat cats on a treadmill. Do not feed them."];
-N2[65]=["The mailman works upstairs now. Overtime is not paid."];
-N2[66]=["Rainy day. Mailman. Ball. A reasonable combination."];
-N2[67]=["Rain. The floor is slippery. Brakes are a rumor.", "Plan your stops. Or do not. Spikes will remind you."];
-N2[68]=["Bone lottery. Some win. Some do not. I will not name names."];
-N2[69]=["Fake doghouses in the dark. Choose wisely. Or do not."];
-N2[70]=["Windy. A bird. Your ears are doing their best."];
-N2[71]=["Islands in the wind. The wind is not on your side. Neither is the cat."];
-N2[72]=["Water park. Slippery floor and a geyser. Wear a helmet. You are a dog."];
-N2[73]=["Trust fall. The floor is not trustworthy. Neither am I."];
-N2[74]=["Elevator going up. Ceiling going down. Watch your head."];
-N2[75]=["Squirrel crossing. Look both ways. Then look up. Then at the squirrel anyway."];
-N2[76]=["Left, with a doghouse that lies. Left is still left."];
-N2[77]=["Two geysers. Over spikes. Time them like it is a dance."];
-N2[78]=["Ball. Cat. Both want your attention. Neither is nice about it."];
-N2[79]=["Rush hour. The mailman is late. The ceiling is early."];
-N2[80]=["Wind, a geyser and a spike. A normal Tuesday."];
-N2[81]=["Two mailmen. Overstaffed. They still miss the package."];
-N2[82]=["Wet floor. A cat. Slide into her and she will not be sorry."];
-N2[83]=["Moonlit snacks. Eat in the dark. What could be wrong with a bone you cannot see."];
-N2[84]=["A pit too wide for a jump. A geyser too eager to help."];
-N2[85]=["The doghouse is on the left. You are on the right. Congratulations, you read the level."];
-N2[86]=["Floating islands, angry edition. I was nice before. I am done being nice."];
-N2[87]=["Almost there. Again. I told you it would happen again."];
-N2[88]=["The doghouse moves. Then it moves again. Then it multiplies.", "When there are four, one is telling the truth."];
-N2[89]=["Hardcore mode. Everything is out to get you. Including me.", "Good luck. Seriously. You will need it."];
+N2[52]=["The doghouse is right there. Go on, touch it.", "Now run back. Look at the floor on your way home."];
+N2[53]=["Two floors, two balls. Somebody lost two balls. Probably the owner."];
+N2[54]=["A key, a puppy and a trap. I have run out of jokes. Not really."];
+N2[55]=["Left again. Run to the doghouse. Then turn around.", "I am not saying it will move. I am not saying it will not."];
+N2[56]=["Gale force wind. Hold on to your ears."];
+N2[57]=["Night. A squirrel. A pit. What could go wrong. Everything."];
+N2[58]=["Floating platforms. Squirrels. A ceiling. Everyone is invited."];
+N2[59]=["Three trees. Three squirrels. No traps. I swear on the bone.", "Those spikes? Decoration. Probably."];
+N2[60]=["Ice rink rules. Do not trust the brakes. There are none."];
+N2[61]=["Two doghouses. One is real. I will not say which."];
+N2[62]=["Stage fright. The squirrel is the audience. The ceiling is the critic."];
+N2[63]=["Left. Night. A squirrel and a ceiling. The usual."];
+N2[64]=["Geyser to the second floor. The cat is already up there."];
+N2[65]=["Up the geyser. Touch the doghouse. Come back down.", "Coming back down is the part nobody trained for."];
+N2[66]=["A cat parade. Fat cats on a treadmill. Do not feed them."];
+N2[67]=["The mailman works upstairs now. Overtime is not paid."];
+N2[68]=["Rainy day. Mailman. Ball. A reasonable combination."];
+N2[69]=["Rain. The floor is slippery. Brakes are a rumor.", "Plan your stops. Or do not. Spikes will remind you."];
+N2[70]=["Storm. Dogs and thunder: the oldest feud.", "When the sky flashes, brace yourself. You will run. Not your choice."];
+N2[71]=["Somebody left a firecracker. Somebody always does.", "Watch the spark. The bang is worse than the spark."];
+N2[72]=["New Year came early. For everyone but the dog.", "The rocket whistles first. Then the sky explodes. Then you panic."];
+N2[73]=["Wet floor. Thunder. Brakes still not included.", "When you panic on ice, you panic farther."];
+N2[74]=["The neighbors are celebrating. All of them. At once.", "Thunder, firecrackers and rockets. The dog files a complaint."];
+N2[75]=["Bone lottery. Some win. Some do not. I will not name names."];
+N2[76]=["Fake doghouses in the dark. Choose wisely. Or do not."];
+N2[77]=["Windy. A bird. Your ears are doing their best."];
+N2[78]=["Wind, a cat and a doghouse that wants to go home.", "Going home is the dangerous part. Ask any dog."];
+N2[79]=["Islands in the wind. The wind is not on your side. Neither is the cat."];
+N2[80]=["Water park. Slippery floor and a geyser. Wear a helmet. You are a dog."];
+N2[81]=["Wet floor. Doghouse. Easy.", "I said easy for the first half."];
+N2[82]=["Trust fall. The floor is not trustworthy. Neither am I."];
+N2[83]=["Elevator going up. Ceiling going down. Watch your head."];
+N2[84]=["Squirrel crossing. Look both ways. Then look up. Then at the squirrel anyway."];
+N2[85]=["Left, with a doghouse that lies. Left is still left."];
+N2[86]=["Two geysers. Over spikes. Time them like it is a dance."];
+N2[87]=["Ball. Cat. Both want your attention. Neither is nice about it."];
+N2[88]=["Rush hour. The mailman is late. The ceiling is early."];
+N2[89]=["Wind, a geyser and a spike. A normal Tuesday."];
+N2[90]=["Two mailmen. Overstaffed. They still miss the package."];
+N2[91]=["Wet floor. A cat. Slide into her and she will not be sorry."];
+N2[92]=["Moonlit snacks. Eat in the dark. What could be wrong with a bone you cannot see."];
+N2[93]=["A pit too wide for a jump. A geyser too eager to help."];
+N2[94]=["The doghouse is on the left. You are on the right. Congratulations, you read the level."];
+N2[95]=["Floating islands, angry edition. I was nice before. I am done being nice."];
+N2[96]=["Almost there. Again. I told you it would happen again."];
+N2[97]=["The doghouse moves. Then it moves again. Then it multiplies.", "When there are four, one is telling the truth."];
+N2[98]=["It moves. You follow. The floor remembers.", "Every lap is a new lap. Every lap has spikes."];
+N2[99]=["Hardcore mode. Everything is out to get you. Including me.", "Good luck. Seriously. You will need it."];
 NARR=N2;})();
 var WINLINES=['Level complete. I am as surprised as you are.','Look at you. A professional.','Treat? No. Moving on.','Not bad. For a dog.'];
 var MILE={5:'Five deaths. A personal record? Sure, let us say yes.',10:'Ten deaths. At this point it is a hobby.',25:'25 deaths. The cat is making popcorn.',50:'50 deaths. I am calling the vet. For me.',100:'100 deaths. Honestly, impressive.'};
@@ -884,6 +917,11 @@ function handleEvents(){
     else if(e==='purr')sfx('purr');
     else if(e==='geys'){sfx('geys');sayOnce('geys','A geyser. Free elevator. Probably.',2800);}
     else if(e==='hop1'||e==='hop2'||e==='hop3'){if(Lcur.hops.length){sfx('pop');if(e==='hop1')sayOnce('hop1','It moved. Do not take it personally.',2600);else if(e==='hop2')sayOnce('hop2','Moved again. A very shy doghouse.',2600);else sayOnce('hop3','Four doghouses. Three of them are lying.',3000);}}
+    else if(e==='w*')sfx('fuse');
+    else if(e==='w%')sfx('whist');
+    else if(e==='b!'){sfx('thunder');if(!calm)shake=Math.max(shake,0.8);sayOnce('storm','Thunder. Dogs have a lot of feelings about thunder.',3000);}
+    else if(e==='b*'){sfx('bang');if(!calm)shake=Math.max(shake,0.9);sayOnce('crk','A firecracker. Somebody is celebrating. Your dog is not.',3000);}
+    else if(e==='b%'){sfx('fw');if(!calm)shake=Math.max(shake,0.7);sayOnce('fw','Fireworks. Nobody asked the dog.',2800);}
     else if(e==='gust'){sfx('gust');sayOnce('gust','Wind. Even the weather is against you.',2600);}
     else if(e==='boing'){sfx('boing');springAnim=0.2;sayOnce('boing','Boing. Dogs were born for this.',2400);}
     else if(e==='key'){sfx('key');sayOnce('key','A key! Surely not a trap. (It is not.)',2600);}
@@ -1258,6 +1296,57 @@ function drawSprinkler(tp,s,T,t){
   ctx.fillStyle=K['vac-dark'];ctx.fillRect(X-T*0.2,Y-T*0.14,T*0.4,T*0.14);
   ctx.fillStyle=K.water;ctx.fillRect(X-T*0.08,Y-T*0.24,T*0.16,T*0.12);
 }
+function drawStorm(t,T){
+  var L=Lcur,i,fl=0,dk=0;
+  for(i=0;i<L.traps.length;i++){
+    var tp=L.traps[i],s=G.tr[i],ty=tp.type;
+    if(ty!=='!'&&ty!=='*'&&ty!=='%')continue;
+    var P=NPER[ty],W=NWARN[ty],X=(tp.x+0.5)*T,Y=(tp.y+1)*T,k,j;
+    if(ty==='!'){
+      if(s.tm>P-1.3)dk=Math.max(dk,Math.min(1,(s.tm-(P-1.3))/0.8)*0.16);
+      if(s.tm>=P-W&&s.tm<P-W+0.22){
+        var fa=1-(s.tm-(P-W))/0.22;fl=Math.max(fl,fa);
+        ctx.strokeStyle='rgba(255,255,255,'+(0.55+0.45*fa)+')';ctx.lineWidth=Math.max(2,T*0.08);ctx.lineJoin='miter';
+        ctx.beginPath();var bx=X+T*0.9,by=-T*0.3,sd=tp.x*7+tp.y*3;ctx.moveTo(bx,by);
+        for(j=1;j<=7;j++){var u=j/7;bx=X+(1-u)*T*0.9+(((sd*j*37)%10)/10-0.5)*T*0.5*(1-u);by=-T*0.3+u*(Y-T*0.2+T*0.3);ctx.lineTo(bx,by);}
+        ctx.lineTo(X,Y-T*0.05);ctx.stroke();
+        ctx.fillStyle='rgba(255,255,255,'+fa+')';ctx.beginPath();ctx.ellipse(X,Y-T*0.03,T*0.4,T*0.1,0,0,6.2832);ctx.fill();
+      }
+    }else if(ty==='*'){
+      ctx.fillStyle='#d8433b';rr(X-T*0.1,Y-T*0.34,T*0.2,T*0.34,T*0.03);ctx.fill();
+      ctx.fillStyle='#f4d35e';ctx.fillRect(X-T*0.1,Y-T*0.24,T*0.2,T*0.05);
+      ctx.strokeStyle=K.ink;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(X,Y-T*0.34);ctx.lineTo(X+T*0.06,Y-T*0.46);ctx.stroke();
+      if(s.tm>=P-W){
+        ctx.fillStyle=(Math.floor(t*30)%2)?'#ffd54a':'#ff9a3c';
+        for(j=0;j<5;j++){ctx.fillRect(X+T*0.06+(Math.random()-0.5)*T*0.22,Y-T*0.48+(Math.random()-0.5)*T*0.2,3,3);}
+      }else if(s.tm<0.3){
+        var bu=s.tm/0.3;ctx.fillStyle=hexA('#ffd54a',1-bu);
+        for(j=0;j<10;j++){var an=j*0.628+tp.x,rr2=T*(0.15+bu*0.9);ctx.fillRect(X+Math.cos(an)*rr2-2,Y-T*0.3+Math.sin(an)*rr2-2,4,4);}
+        fl=Math.max(fl,(1-bu)*0.35);
+      }
+    }else{
+      ctx.fillStyle=K['vac-dark'];rr(X-T*0.09,Y-T*0.3,T*0.18,T*0.3,T*0.04);ctx.fill();
+      ctx.fillStyle='#6bd6ff';ctx.fillRect(X-T*0.09,Y-T*0.3,T*0.18,T*0.06);
+      var topY=Math.max(1.1,tp.y-4.0)*T;
+      if(s.tm>=P-W){
+        var u2=(s.tm-(P-W))/W,ry=Y-T*0.3-(Y-T*0.3-topY)*u2*(2-u2);
+        ctx.fillStyle='#ffd54a';ctx.fillRect(X-2,ry-6,4,10);
+        for(j=1;j<7;j++){ctx.fillStyle=hexA('#ff9a3c',0.7-j*0.1);ctx.fillRect(X-2+Math.sin(t*40+j)*3,ry+4+j*T*0.12,3,3);}
+      }else if(s.tm<0.9){
+        var bu2=s.tm/0.9,cols=['#ffd54a','#ff6b6b','#6bd6ff'];
+        for(j=0;j<18;j++){var an2=j*0.349,r3=T*(0.2+bu2*1.4),yy=topY+Math.sin(an2)*r3+bu2*bu2*T*0.5;ctx.fillStyle=hexA(cols[j%3],1-bu2);ctx.fillRect(X+Math.cos(an2)*r3-2,yy-2,5,5);}
+        fl=Math.max(fl,(1-bu2)*0.28);
+      }
+    }
+  }
+  if(dk>0&&!calm){ctx.fillStyle='rgba(8,12,30,'+dk+')';ctx.fillRect(-20,-20,cw+40,ch+40);}
+  if(fl>0){ctx.fillStyle='rgba(255,255,255,'+(fl*(calm?0.15:0.34))+')';ctx.fillRect(-20,-20,cw+40,ch+40);}
+  if(G.p.scare>0&&!G.dead){
+    var bx2=(G.p.x+PW/2)*T,by2=G.p.y*T-T*0.28;
+    ctx.fillStyle='#fff';rr(bx2-T*0.16,by2-T*0.22,T*0.32,T*0.3,T*0.08);ctx.fill();
+    ctx.fillStyle='#d8433b';ctx.font='700 '+Math.round(T*0.3)+'px '+FONT;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('!',bx2,by2-T*0.07);
+  }
+}
 function drawGeyser(tp,s,T,t){
   var X=(tp.x+0.5)*T,Y=(tp.y+1)*T,on=s.tm>=2&&s.tm<2.9,warn=!on&&s.tm>=1.3&&s.tm<2,i;
   if(on){
@@ -1459,7 +1548,7 @@ function draw(t){
         if(s.s===1){ctx.fillStyle=hexA(K.bg,0.35);ctx.fillRect(tp.x*T+T*0.45,tp.y*T,T*0.06,T);}
         ctx.restore();
       }
-    }else if(tp.type==='s'){
+    }else if(tp.type==='s'||tp.type==='T'){
       if(s.s===1)drawSpikesUp(tp.x,tp.y,T,Math.max(0.15,s.tm));
     }else if(tp.type==='k'){
       if(s.s<3)drawSpikesDown(tp.x,s.y,T);
@@ -1500,7 +1589,7 @@ function draw(t){
   if(G.h&&!G.dead)drawPup(t,T);
   if(!G.dead)drawDog(t);
   drawGloss(T,t);
-  drawGag(t,T);drawSec(t,T);
+  drawGag(t,T);drawSec(t,T);drawStorm(t,T);
   if(birdFx&&G.won&&birdFx.age>0.8){
     var ba=birdFx.age-0.8,bx=(G.door.x+0.5+ba*5)*T,by=(G.door.y+0.3-ba*2.4-Math.sin(ba*3)*0.3)*T,fl=Math.sin(t*22)*T*0.16;
     ctx.fillStyle=K.bird;rr(bx-T*0.22,by-T*0.1,T*0.44,T*0.24,T*0.11);ctx.fill();
