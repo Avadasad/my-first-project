@@ -308,7 +308,8 @@ var LEVELS=[
  {cap:'Bang.',w:'dusk',rows:[WALL,E,E,E,E,'#P.......*....D#','####..#..###..##','####^^#^^###^^##',WALL]},
  {cap:'Rocket science.',w:'cloud',rows:[WALL,E,E,E,E,'#P.........%..D#','####..##..##.###','####^^##^^##^###',WALL]},
  {cap:'Wet thunder.',w:'rain',rows:[WALL,E,E,E,E,'#Pi..........!D#','#####..##..#####','#####^^##^^#####',WALL]},
- {cap:'Noise complaint.',w:'dusk',rows:[WALL,E,E,E,E,'#P...*...!..%.D#','#######..##..###','#######^^##^^###',WALL]},
+ {cap:'Ice and fireworks.',w:'dusk',rows:[WALL,'#~i............#',E,E,E,'#P.....*s....%D#','####..###..#.###','####^^###^^#^###',WALL]},
+ {cap:'Noise complaint.',w:'dusk',rows:[WALL,E,E,E,E,'#P...*.......%D#','#######..##..###','#######^^##^^###',WALL]},
  {cap:'Everything is loud.',w:'dusk',rows:[WALL,'#~i............#',E,E,E,E,'#P.n!.T*.T.%.bD#',WALL,WALL]},
  {cap:'Bone lottery.',w:'sun',rows:[WALL,E,E,E,E,E,'#P.r..s..r..s.D#',WALL,WALL]},
  {cap:'Fake out.',w:'night',rows:[WALL,E,E,E,E,E,'#P.X..X..s..X.D#',WALL,WALL]},
@@ -319,11 +320,13 @@ var LEVELS=[
  {cap:'Water park.',w:'rain',rows:[WALL,'#i.............#',E,E,E,'#.......#......#','#P...V..#..s.D.#',WALL,WALL]},
  {cap:'Slippery return.',w:'rain',rows:[WALL,'#i.............#',E,E,E,E,'#P.n..T..s..T.D#',WALL,WALL]},
  {cap:'Thunder, then home.',w:'rain',rows:[WALL,E,E,E,E,E,'#P.n!.T..T..b.D#',WALL,WALL]},
+ {cap:'Gale warning.',w:'wind',rows:[WALL,'#~i............#',E,E,E,E,'#P.n..T.s..T.bD#',WALL,WALL]},
  {cap:'Trust fall.',w:'sun',rows:[WALL,E,E,E,E,E,'#P.b.........D.#','####ff###ff#####','####^^###^^#####']},
  {cap:'Elevator.',w:'night',rows:[WALL,'#........k.....#',E,'#.........s..D.#','#......#########','#......#########','#P...V.#########',WALL,WALL]},
  {cap:'Squirrel crossing.',w:'dusk',rows:[WALL,'#.....k..k.....#',E,E,E,'#...q.....q....#','#P.....s.....D.#',WALL,WALL]},
  {cap:'Wrong way, fake edition.',w:'cloud',rows:[WALL,E,E,E,E,E,'#D..s..X..s..P.#',WALL,WALL]},
  {cap:'Wrong way, loud.',w:'dusk',rows:[WALL,E,E,E,E,E,'#D..s.c..%..P.n#',WALL,WALL]},
+ {cap:'Run back, run back.',w:'rain',rows:[WALL,'#i.............#',E,E,E,E,'#D..T.s...!.P.n#',WALL,WALL]},
  {cap:'Two geysers.',w:'rain',rows:[WALL,E,E,'#............D.#','#.......V..#####','#.....####.....#','#P.V...........#','#####^^^^^^^^^^#',WALL]},
  {cap:'Ball and cat.',w:'cloud',rows:[WALL,E,E,E,E,E,'#P..Q..c..Q..D.#',WALL,WALL]},
  {cap:'Ball and thunder.',w:'rain',rows:[WALL,E,E,E,E,E,'#P..Q..s....Q!D#','######^^########',WALL]},
@@ -334,12 +337,14 @@ var LEVELS=[
  {cap:'Moonlit snacks.',w:'night',rows:[WALL,E,E,E,'#.....r........#','#.......q......#','#P.r..s...r.s.D#',WALL,WALL]},
  {cap:'Geyser bridge.',w:'cloud',rows:[WALL,E,E,E,E,E,'#P...V.......D.#','######^^^^######',WALL]},
  {cap:'Geyser and bang.',w:'dusk',rows:[WALL,E,E,'#.......*...D..#','#......#########',E,'#P..V..........#',WALL,WALL]},
+ {cap:'Storm elevator.',w:'rain',rows:[WALL,E,E,'#.......T.s.D..#','#......#########',E,'#P.n.V..!......#',WALL,WALL]},
  {cap:'Reverse psychology.',w:'sun',rows:[WALL,E,E,E,E,E,'#D..s....c...P.#',WALL,WALL]},
  {cap:'Floating islands, angry.',w:'night',rows:[WALL,'#..D...k.......#','#====..........#','#.....====...s.#','#.......c..====#','#P.s..====.....#','#====..........#','#^^^^^^^^^^^^^^#',WALL]},
  {cap:'Almost there, again.',w:'dusk',rows:[WALL,E,E,E,E,E,'#P..s..n..s.b.D#',WALL,WALL]},
  {cap:'Musical doghouses.',w:'sun',rows:[WALL,E,E,E,E,E,'#P2.D..H.3sH.H1#',WALL,WALL]},
  {cap:'Musical return.',w:'night',rows:[WALL,E,E,E,E,E,'#P1.T..T.2.sH.D#',WALL,WALL]},
  {cap:'Musical thunder.',w:'rain',rows:[WALL,E,E,E,E,E,'#P2.D.!H.3sH.H1#',WALL,WALL]},
+ {cap:'Triple hop, triple trouble.',w:'wind',rows:[WALL,'#~.............#',E,E,E,E,'#P1.T.*..T2.H.D#',WALL,WALL]},
  {cap:'Hardcore. You were warned.',w:'night',rows:[WALL,E,E,E,E,'#.....q.....q..#','#P.s........c.D#','#####ff###ff####','#####^^###^^####']},
  {cap:'Last yard. Everything at once.',w:'dusk',rows:[WALL,'#..........k...#',E,E,'#.......r......#',E,'#P.o..s...rc.XD#','#######ff#######','#######^^#######']}
 ];
@@ -645,10 +650,21 @@ function save(){try{localStorage.setItem(SAVE_KEY,JSON.stringify({lvl:lvlIndex,d
 /* ---------- sound (synthesized, no files) ---------- */
 var AC=null,muted=false,noiseBuf=null;
 try{muted=localStorage.getItem(MUTE_KEY)==='1';}catch(e){}
+var acStale=false;
 function audioInit(){
-  if(!AC){try{var C=window.AudioContext||window.webkitAudioContext;if(C)AC=new C();}catch(e){AC=null;}}
-  if(AC&&AC.state==='suspended'){try{AC.resume();}catch(e){}}
+  var C=window.AudioContext||window.webkitAudioContext;if(!C)return;
+  if(AC&&(acStale||AC.state==='closed')){acStale=false;try{AC.close();}catch(e){}AC=null;noiseBuf=null;}
+  var fresh=false;
+  if(!AC){try{AC=new C();noiseBuf=null;fresh=true;}catch(e){AC=null;return;}}
+  if(AC.state!=='running'){try{var pr=AC.resume();if(pr&&pr.catch)pr.catch(function(){});}catch(e){}}
+  if(fresh){try{var sb=AC.createBuffer(1,1,22050),ss=AC.createBufferSource();ss.buffer=sb;ss.connect(AC.destination);ss.start(0);}catch(e){}}
 }
+function audioStale(){acStale=true;}
+document.addEventListener('visibilitychange',function(){if(document.hidden)audioStale();else audioInit();});
+window.addEventListener('pagehide',audioStale);
+window.addEventListener('pageshow',function(){audioStale();audioInit();});
+window.addEventListener('focus',function(){if(AC&&AC.state!=='running')audioStale();});
+try{var tgw=window.Telegram&&window.Telegram.WebApp;if(tgw&&tgw.onEvent){tgw.onEvent('deactivated',audioStale);tgw.onEvent('activated',function(){audioStale();audioInit();});}}catch(e){}
 ['touchend','pointerdown','keydown','click'].forEach(function(n){window.addEventListener(n,audioInit,{passive:true});});
 function tone(f0,f1,dur,type,vol,delay){
   if(!AC||muted)return;
@@ -769,7 +785,7 @@ var NARR={
   34:['Puppy and the gate. Teamwork. Mostly yours.'],
   35:['Last one. Everything at once. I believe in you. Slightly.']
 };
-(function(){var N2={},OLD=[11, 21, 31, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35];Object.keys(NARR).forEach(function(k){k=+k;var sh=0;OLD.forEach(function(p){if(p<=k)sh++;});N2[k+sh]=NARR[k];});
+(function(){var N2={},OLD=[11, 21, 31, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35];Object.keys(NARR).forEach(function(k){k=+k;var sh=0;OLD.forEach(function(p){if(p<=k)sh++;});N2[k+sh]=NARR[k];});
 N2[11]=['Nothing here. I checked twice.','No spikes. No cats. I am suspicious too.','Just enjoy the walk. Smell something.'];
 N2[22]=['I made this one short. Do not thank me.','The mailman is on a break. So am I.'];
 N2[33]=['Intermission. Please return to your seats.','Buy a bone in the lobby. Dogs eat free.','Okay, enough. Back to work.'];
@@ -811,39 +827,44 @@ N2[72]=["Storm. Dogs and thunder: the oldest feud.", "When the sky flashes, brac
 N2[73]=["Somebody left a firecracker. Somebody always does.", "Watch the spark. The bang is worse than the spark."];
 N2[74]=["New Year came early. For everyone but the dog.", "The rocket whistles first. Then the sky explodes. Then you panic."];
 N2[75]=["Wet floor. Thunder. Brakes still not included.", "When you panic on ice, you panic farther."];
-N2[76]=["The neighbors are celebrating. All of them. At once.", "Thunder, firecrackers and rockets. The dog files a complaint."];
-N2[77]=["Wind. Ice. Thunder. Fireworks. The doghouse moves.", "At this point the neighbors are calling the police. On you."];
-N2[78]=["Bone lottery. Some win. Some do not. I will not name names."];
-N2[79]=["Fake doghouses in the dark. Choose wisely. Or do not."];
-N2[80]=["Windy. A bird. Your ears are doing their best."];
-N2[81]=["Wind, a cat and a doghouse that wants to go home.", "Going home is the dangerous part. Ask any dog."];
-N2[82]=["Wind. Wet floor. Thunder. Please enjoy responsibly.", "Brakes are for other dogs."];
-N2[83]=["Islands in the wind. The wind is not on your side. Neither is the cat."];
-N2[84]=["Water park. Slippery floor and a geyser. Wear a helmet. You are a dog."];
-N2[85]=["Wet floor. Doghouse. Easy.", "I said easy for the first half."];
-N2[86]=["Thunder, a doghouse that moves and a floor with a memory.", "Lightning hits behind you. Home is back there too."];
-N2[87]=["Trust fall. The floor is not trustworthy. Neither am I."];
-N2[88]=["Elevator going up. Ceiling going down. Watch your head."];
-N2[89]=["Squirrel crossing. Look both ways. Then look up. Then at the squirrel anyway."];
-N2[90]=["Left, with a doghouse that lies. Left is still left."];
-N2[91]=["Left again. With a cat. And a rocket. And a doghouse that moves.", "I would say good luck. I would also say I am sorry."];
-N2[92]=["Two geysers. Over spikes. Time them like it is a dance."];
-N2[93]=["Ball. Cat. Both want your attention. Neither is nice about it."];
-N2[94]=["Balls, spikes and lightning. A normal afternoon.", "Fetch the doghouse. Ignore the sky."];
-N2[95]=["Rush hour. The mailman is late. The ceiling is early."];
-N2[96]=["Wind, a geyser and a spike. A normal Tuesday."];
-N2[97]=["Two mailmen. Overstaffed. They still miss the package."];
-N2[98]=["Wet floor. A cat. Slide into her and she will not be sorry."];
-N2[99]=["Moonlit snacks. Eat in the dark. What could be wrong with a bone you cannot see."];
-N2[100]=["A pit too wide for a jump. A geyser too eager to help."];
-N2[101]=["A geyser to go up. A firecracker to come down.", "You get used to the bang. The dog does not."];
-N2[102]=["The doghouse is on the left. You are on the right. Congratulations, you read the level."];
-N2[103]=["Floating islands, angry edition. I was nice before. I am done being nice."];
-N2[104]=["Almost there. Again. I told you it would happen again."];
-N2[105]=["The doghouse moves. Then it moves again. Then it multiplies.", "When there are four, one is telling the truth."];
-N2[106]=["It moves. You follow. The floor remembers.", "Every lap is a new lap. Every lap has spikes."];
-N2[107]=["The doghouse is musical. The sky is percussion.", "Four doghouses, one thunderstorm. A classic."];
-N2[108]=["Hardcore mode. Everything is out to get you. Including me.", "Good luck. Seriously. You will need it."];
+N2[76]=["Ice rink. Firecracker. Rocket. A very normal Tuesday.", "Slide into the bang. Or away from it. Hard to choose."];
+N2[77]=["The neighbors are celebrating. All of them. At once.", "Firecrackers and rockets. The dog files a complaint."];
+N2[78]=["Wind. Ice. Thunder. Fireworks. The doghouse moves.", "At this point the neighbors are calling the police. On you."];
+N2[79]=["Bone lottery. Some win. Some do not. I will not name names."];
+N2[80]=["Fake doghouses in the dark. Choose wisely. Or do not."];
+N2[81]=["Windy. A bird. Your ears are doing their best."];
+N2[82]=["Wind, a cat and a doghouse that wants to go home.", "Going home is the dangerous part. Ask any dog."];
+N2[83]=["Wind. Wet floor. Thunder. Please enjoy responsibly.", "Brakes are for other dogs."];
+N2[84]=["Islands in the wind. The wind is not on your side. Neither is the cat."];
+N2[85]=["Water park. Slippery floor and a geyser. Wear a helmet. You are a dog."];
+N2[86]=["Wet floor. Doghouse. Easy.", "I said easy for the first half."];
+N2[87]=["Thunder, a doghouse that moves and a floor with a memory.", "Lightning hits behind you. Home is back there too."];
+N2[88]=["Wind, ice and a doghouse that wants to be elsewhere.", "The way back is slippery. The way back always is."];
+N2[89]=["Trust fall. The floor is not trustworthy. Neither am I."];
+N2[90]=["Elevator going up. Ceiling going down. Watch your head."];
+N2[91]=["Squirrel crossing. Look both ways. Then look up. Then at the squirrel anyway."];
+N2[92]=["Left, with a doghouse that lies. Left is still left."];
+N2[93]=["Left again. With a cat. And a rocket. And a doghouse that moves.", "I would say good luck. I would also say I am sorry."];
+N2[94]=["Left. Wet. Thunder behind you.", "Touch the doghouse. Then touch the doghouse. It will make sense."];
+N2[95]=["Two geysers. Over spikes. Time them like it is a dance."];
+N2[96]=["Ball. Cat. Both want your attention. Neither is nice about it."];
+N2[97]=["Balls, spikes and lightning. A normal afternoon.", "Fetch the doghouse. Ignore the sky."];
+N2[98]=["Rush hour. The mailman is late. The ceiling is early."];
+N2[99]=["Wind, a geyser and a spike. A normal Tuesday."];
+N2[100]=["Two mailmen. Overstaffed. They still miss the package."];
+N2[101]=["Wet floor. A cat. Slide into her and she will not be sorry."];
+N2[102]=["Moonlit snacks. Eat in the dark. What could be wrong with a bone you cannot see."];
+N2[103]=["A pit too wide for a jump. A geyser too eager to help."];
+N2[104]=["A geyser to go up. A firecracker to come down.", "You get used to the bang. The dog does not."];
+N2[105]=["Up the geyser. Thunder. Spikes on the way back.", "Going down is optional. Dying is not."];
+N2[106]=["The doghouse is on the left. You are on the right. Congratulations, you read the level."];
+N2[107]=["Floating islands, angry edition. I was nice before. I am done being nice."];
+N2[108]=["Almost there. Again. I told you it would happen again."];
+N2[109]=["The doghouse moves. Then it moves again. Then it multiplies.", "When there are four, one is telling the truth."];
+N2[110]=["It moves. You follow. The floor remembers.", "Every lap is a new lap. Every lap has spikes."];
+N2[111]=["The doghouse is musical. The sky is percussion.", "Four doghouses, one thunderstorm. A classic."];
+N2[112]=["Three hops. A fake doghouse. Wind. A firecracker.", "Nobody asked for this. Everybody will remember it."];
+N2[113]=["Hardcore mode. Everything is out to get you. Including me.", "Good luck. Seriously. You will need it."];
 NARR=N2;})();
 var WINLINES=['Level complete. I am as surprised as you are.','Look at you. A professional.','Treat? No. Moving on.','Not bad. For a dog.'];
 var MILE={5:'Five deaths. A personal record? Sure, let us say yes.',10:'Ten deaths. At this point it is a hobby.',25:'25 deaths. The cat is making popcorn.',50:'50 deaths. I am calling the vet. For me.',100:'100 deaths. Honestly, impressive.'};
@@ -1438,7 +1459,7 @@ function drawBird(tp,s,T,t){
   ctx.fillStyle=K.bg;ctx.fillRect(X-T*0.24,Y-T*0.1,T*0.04,T*0.04);
   if(s.hold)drawBone(s.x-0.95,tp.y-0.12,T,t);
 }
-var GAGMAP={"Cat nap.":"catroof","Cat parade.":"catroof","Mail call.":"pack","Two mailmen.":"pack","SQUIRREL!":"squirrel","Squirrel crossing.":"squirrel","Treadmill.":"belt","Cat on the belt.":"belt","Bone bait.":"sign","Look up.":"ball","Boing.":"rocket","Old Faithful.":"splash","Treadmill panic.":"belt","Boing and boom.":"rocket","Geyser and bang.":"splash","Ball and thunder.":"ball"};
+var GAGMAP={"Cat nap.":"catroof","Cat parade.":"catroof","Mail call.":"pack","Two mailmen.":"pack","SQUIRREL!":"squirrel","Squirrel crossing.":"squirrel","Treadmill.":"belt","Cat on the belt.":"belt","Bone bait.":"sign","Look up.":"ball","Boing.":"rocket","Old Faithful.":"splash","Treadmill panic.":"belt","Boing and boom.":"rocket","Geyser and bang.":"splash","Ball and thunder.":"ball","Storm elevator.":"splash"};
 function gagOff(){
   var o={x:0,y:0};
   if(!gagFx||!G||!G.won)return o;
