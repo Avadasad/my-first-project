@@ -152,6 +152,19 @@ html,body{overscroll-behavior:none;touch-action:none}
 .sttab .bst{color:var(--accent);font-weight:700}
 .sec2{background:transparent;border:1px solid var(--sky-line);border-radius:10px;padding:11px;font-weight:700;color:var(--ink);width:100%;margin-top:8px}
 @media all{.top .deaths{font-size:0}.top .deaths b{font-size:17px}#bones::before,#deaths::before{font-size:12px;margin-right:3px;font-weight:400;color:var(--ink)}#bones::before{content:'\1F9B4'}#deaths::before{content:'\1F480';margin-left:8px}}
+.achlist{display:grid;gap:8px}
+.ach{display:grid;grid-template-columns:30px 1fr;gap:10px;align-items:center;border:1px solid var(--sky-line);border-radius:10px;padding:9px 10px;background:transparent}
+.ach .ai{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;background:var(--sky-line);color:var(--muted)}
+.ach.on .ai{background:var(--accent);color:#fff}
+.ach b{display:block;font-size:15px}
+.ach span{display:block;font-size:13px;color:var(--muted);line-height:1.35}
+.ach.off{opacity:.62}
+.ach i{font-style:normal;color:var(--accent);font-weight:700}
+#achToast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 104px);transform:translate(-50%,-14px);opacity:0;transition:opacity .25s,transform .25s;z-index:18;pointer-events:none;background:var(--panel);color:var(--ink);border:1px solid var(--accent);border-radius:12px;padding:9px 14px;max-width:min(92vw,420px);box-shadow:0 6px 20px rgba(0,0,0,.35);text-align:center}
+#achToast.show{opacity:1;transform:translate(-50%,0)}
+#achToast small{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:700}
+#achToast b{display:block;font-size:16px}
+#achToast span{display:block;font-size:13px;color:var(--muted);margin-top:2px}
 .stbtns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .stbtns .sec{background:transparent;border:1px solid var(--sky-line);border-radius:10px;padding:12px;font-weight:700}
 .top{flex-wrap:nowrap}.lvl,.deaths{white-space:nowrap}
@@ -199,8 +212,17 @@ html,body{overscroll-behavior:none;touch-action:none}
     <div class="addr"><b>TON or USDT on the TON network</b><code id="a1">UQD3-y0ehGjNQwO1dfclUIIQLaGQeAhv9PEm6I0ZStnJr1_T</code><button type="button" data-copy="a1">Copy address</button></div>
     <div class="addr"><b>USDT on the TRON network (TRC-20)</b><code id="a2">TZ1gGUFPdnzFxjWbxed8cB6mLC4WqHLX4q</code><button type="button" data-copy="a2">Copy address</button></div>
     <p class="muted">You can send from Telegram Wallet. Crypto transfers cannot be undone, so please check the network before you send. No pressure, ever. A kind word to a dog is free too.</p>
+    <button class="sec2" id="hAch" type="button">Achievements</button>
     <button class="sec2" id="hNew" type="button">New game (start from level 1)</button>
     <button class="hclose" id="helpClose" type="button">Back to the yard</button>
+  </div>
+</div>
+<div class="sheet help" id="achS" hidden>
+  <div class="hcard" role="dialog" aria-modal="true" aria-labelledby="achT">
+    <h2 id="achT">Achievements</h2>
+    <p class="muted" id="achSub"></p>
+    <div id="achList" class="achlist"></div>
+    <button class="hclose" id="achClose" type="button">Back</button>
   </div>
 </div>
 <div class="sheet" id="stats" hidden>
@@ -273,9 +295,13 @@ var LEVELS=[
  {cap:'Fetch!',w:'sun',rows:[WALL,E,E,E,E,E,'#P...Q.....Q..D#',WALL,WALL]},
  {cap:'Bird brain, puppy edition.',w:'sun',rows:[WALL,E,E,E,E,'#...b.......b.B#','#Py..s....s...D#',WALL,WALL]},
  {cap:'Puppy and the bang.',w:'dusk',rows:[WALL,E,E,E,E,E,'#Py.s..*..s%..D#',WALL,WALL]},
+ {cap:'Bird on the way back.',w:'sun',rows:[WALL,E,E,E,E,E,'#P.n.B.T..*.bD.#',WALL,WALL]},
+ {cap:'Bird, rocket, home.',w:'cloud',rows:[WALL,E,E,E,E,E,'#P.n..T.%.B..bD#',WALL,WALL]},
  {cap:'Cat on the belt.',w:'sun',rows:[WALL,E,E,E,E,E,'#P....c...^^..D#','###>>>>>>>>#####',WALL]},
  {cap:'Treadmill panic.',w:'sun',rows:[WALL,'#......k.......#',E,E,E,E,'#P..s.....s*..D#','##^<<<<<<<<#####',WALL]},
  {cap:'Conveyor return.',w:'dusk',rows:[WALL,'#~.............#',E,E,E,E,'#P.nT..s..*..TbD','###>>>>>>>>#####',WALL]},
+ {cap:'Reverse treadmill.',w:'dusk',rows:[WALL,'#~.............#',E,E,E,E,'#P.n.T..s...*.D#','##<<<<<<<<<<<###',WALL]},
+ {cap:'Treadmill thunder.',w:'wind',rows:[WALL,'#~.............#',E,E,E,E,'#P.n.T.s.!..T.D#','##<<<<<<<<<<<###',WALL]},
  {cap:'Squirrel springboard.',w:'dusk',rows:[WALL,'#...........D..#','#.........######','#........S.....#','#....######....#','#.............q#','#P.S.^^^^^^^^^.#',WALL,WALL]},
  {cap:'Wrong way, wrong way.',w:'dusk',rows:[WALL,E,E,E,E,E,'#D..c........P.#','#####ff###ff####','#####^^###^^####']},
  {cap:'Breezy.',w:'wind',rows:[WALL,'#~.............#',E,E,E,E,'#P............D#','######.....#####','######^^^^^#####']},
@@ -284,8 +310,10 @@ var LEVELS=[
  {cap:'Boing, boing, meow.',w:'cloud',rows:[WALL,'#...........D..#','#.........######','#....c...S.....#','#....######....#',E,'#P.S.^^^^^^^^^.#',WALL,WALL]},
  {cap:'Boing and boom.',w:'dusk',rows:[WALL,'#.........k....#',E,E,E,E,'#P.S..s...s%.D.#',WALL,WALL]},
  {cap:'Boing, then home.',w:'cloud',rows:[WALL,'#...........D..#','#.........######','#....*n..S.....#','#....######....#',E,'#P.S.^^^^^^^^^.#',WALL,WALL]},
+ {cap:'Thunder spring.',w:'cloud',rows:[WALL,'#...........D..#','#.........######','#....!n..S.....#','#....######....#',E,'#P.S.^^^^^^^^^.#',WALL,WALL]},
  {cap:'Gated mail.',w:'rain',rows:[WALL,E,E,'#........G.....#','#........G.....#','#........G.....#','#P.x.u...G.m..D#',WALL,WALL]},
  {cap:'Gate and bang.',w:'dusk',rows:[WALL,E,E,'#........G.....#','#........G.....#','#........G.....#','#P.x.u...G.*s.D#',WALL,WALL]},
+ {cap:'Crates on ice.',w:'rain',rows:[WALL,'#i.............#',E,E,E,E,'#P..x..!..s.xD.#',WALL,WALL]},
  {cap:'Staircase with opinions.',w:'sun',rows:[WALL,'#...........k..#',E,'#............D.#','#.......s..#####','#......###.#####','#P.c##.###.#####',WALL,WALL]},
  {cap:'Bones on the belt.',w:'sun',rows:[WALL,E,E,E,E,E,'#P..r...r.^^..D#','###>>>>>>>>#####',WALL]},
  {cap:'Old Faithful.',w:'sun',rows:[WALL,E,E,E,'#.......#......#','#.......#......#','#P...V..#..s.D.#',WALL,WALL]},
@@ -330,6 +358,8 @@ var LEVELS=[
  {cap:'Trust fall.',w:'sun',rows:[WALL,E,E,E,E,E,'#P.b.........D.#','####ff###ff#####','####^^###^^#####']},
  {cap:'Elevator.',w:'night',rows:[WALL,'#........k.....#',E,'#.........s..D.#','#......#########','#......#########','#P...V.#########',WALL,WALL]},
  {cap:'Squirrel crossing.',w:'dusk',rows:[WALL,'#.....k..k.....#',E,E,E,'#...q.....q....#','#P.....s.....D.#',WALL,WALL]},
+ {cap:'Treehouse return.',w:'dusk',rows:[WALL,E,E,E,E,E,'#P.n.q.T..*..sD#',WALL,WALL]},
+ {cap:'Squirrels and rockets.',w:'dusk',rows:[WALL,E,E,E,E,E,'#P.n.qT.%.q.bD.#',WALL,WALL]},
  {cap:'Wrong way, fake edition.',w:'cloud',rows:[WALL,E,E,E,E,E,'#D..s..X..s..P.#',WALL,WALL]},
  {cap:'Wrong way, loud.',w:'dusk',rows:[WALL,E,E,E,E,E,'#D..s.c..%..P.n#',WALL,WALL]},
  {cap:'Run back, run back.',w:'rain',rows:[WALL,'#i.............#',E,E,E,E,'#D..T.s...!.P.n#',WALL,WALL]},
@@ -337,6 +367,8 @@ var LEVELS=[
  {cap:'Two geysers.',w:'rain',rows:[WALL,E,E,'#............D.#','#.......V..#####','#.....####.....#','#P.V...........#','#####^^^^^^^^^^#',WALL]},
  {cap:'Ball and cat.',w:'cloud',rows:[WALL,E,E,E,E,E,'#P..Q..c..Q..D.#',WALL,WALL]},
  {cap:'Ball and thunder.',w:'rain',rows:[WALL,E,E,E,E,E,'#P..Q..s....Q!D#','######^^########',WALL]},
+ {cap:'Ball and return.',w:'rain',rows:[WALL,'#i.............#',E,E,E,E,'#P.n.Q.T..Q.bD.#',WALL,WALL]},
+ {cap:'Slippery fetch.',w:'rain',rows:[WALL,'#i.............#',E,E,E,E,'#P.nQ.T.*.Q.TD.#',WALL,WALL]},
  {cap:'Floating islands, rush hour.',w:'dusk',rows:[WALL,'#..D...k.......#','#====..........#','#.....====..s..#','#......m...====#','#P....====.....#','#====..........#','#^^^^^^^^^^^^^^#',WALL]},
  {cap:'Geyser gale.',w:'wind',rows:[WALL,'#~.............#',E,E,'#.........s..D.#','#......#########','#P..V..#########',WALL,WALL]},
  {cap:'Two mailmen.',w:'rain',rows:[WALL,E,E,E,E,E,'#P..m....m..D..#',WALL,WALL]},
@@ -795,96 +827,106 @@ var NARR={
   34:['Puppy and the gate. Teamwork. Mostly yours.'],
   35:['Last one. Everything at once. I believe in you. Slightly.']
 };
-(function(){var N2={},OLD=[11, 21, 31, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35];Object.keys(NARR).forEach(function(k){k=+k;var sh=0;OLD.forEach(function(p){if(p<=k)sh++;});N2[k+sh]=NARR[k];});
+(function(){var N2={},OLD=[11, 21, 31, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35];Object.keys(NARR).forEach(function(k){k=+k;var sh=0;OLD.forEach(function(p){if(p<=k)sh++;});N2[k+sh]=NARR[k];});
 N2[11]=['Nothing here. I checked twice.','No spikes. No cats. I am suspicious too.','Just enjoy the walk. Smell something.'];
 N2[22]=['I made this one short. Do not thank me.','The mailman is on a break. So am I.'];
 N2[33]=['Intermission. Please return to your seats.','Buy a bone in the lobby. Dogs eat free.','Okay, enough. Back to work.'];
 N2[38]=["A ball. Every dog loves a ball. This one loves you back. Aggressively.", "Jump when it is low. Or run under when it is high. Your call."];
 N2[39]=["The puppy is back. So is the bird. They have not met.", "Bird: 1. Puppy: 0. Do not let it start."];
 N2[40]=["A puppy, a firecracker and a rocket. Nobody warned the puppy.", "Walk calmly. The puppy is watching."];
-N2[41]=["The cat is on a conveyor belt. I did not plan this. I just let it happen."];
-N2[42]=["A treadmill. A firecracker. A pit behind you.", "Run forward. Or do not. The belt has opinions."];
-N2[43]=["A treadmill, a wind and a doghouse that runs away.", "Coming back is harder. The belt remembers."];
-N2[44]=["Squirrel season. Do not look at the tree. You will look at the tree."];
-N2[45]=["The doghouse is on the left again. I moved nothing. You are just wrong.", "Mind the floor. It has opinions."];
-N2[46]=["Wind. The forecast said gusts. The forecast was an optimist.", "Wait for a tailwind. Jump. Pretend it was skill."];
-N2[47]=["Floating islands. Do not look down. There is nothing nice down there.", "A cat, a ceiling and a lot of air. Up you go."];
-N2[48]=["A bird, a box, a gate. A normal Tuesday."];
-N2[49]=["Springs again. This time there is a cat upstairs. She was here first."];
-N2[50]=["Spring first. Rocket second. Dog third.", "Bounce responsibly."];
-N2[51]=["Spring up. Touch the doghouse. Spring down.", "A firecracker is up there. It was here first."];
-N2[52]=["The mailman is behind the gate. He has been there since Monday."];
-N2[53]=["Button, crate, gate. And somebody lit a firecracker.", "Push the crate. Not the luck."];
-N2[54]=["Stairs. Every step has an opinion. The cat has the loudest one."];
-N2[55]=["Bones on a conveyor belt. A sushi bar for dogs. Be careful what you grab."];
-N2[56]=["A geyser. Free elevator. It erupts when it feels like it.", "Wait for the splash. Then fly."];
-N2[57]=["Nothing here. Really. Run.", "I would never lie to you. Much."];
-N2[58]=["The doghouse is right there. Go on, touch it.", "Now run back. Look at the floor on your way home."];
-N2[59]=["Two floors, two balls. Somebody lost two balls. Probably the owner."];
-N2[60]=["A key, a puppy and a trap. I have run out of jokes. Not really."];
-N2[61]=["Key, lock, doghouse. And a floor with a surprise.", "You got the key. Great. Now go home. The long way."];
-N2[62]=["Left again. Run to the doghouse. Then turn around.", "I am not saying it will move. I am not saying it will not."];
-N2[63]=["Gale force wind. Hold on to your ears."];
-N2[64]=["Night. A squirrel. A pit. What could go wrong. Everything."];
-N2[65]=["Floating platforms. Squirrels. A ceiling. Everyone is invited."];
-N2[66]=["Three trees. Three squirrels. No traps. I swear on the bone.", "Those spikes? Decoration. Probably."];
-N2[67]=["Ice rink rules. Do not trust the brakes. There are none."];
-N2[68]=["Two doghouses. One is real. I will not say which."];
-N2[69]=["Stage fright. The squirrel is the audience. The ceiling is the critic."];
-N2[70]=["Left. Night. A squirrel and a ceiling. The usual."];
-N2[71]=["Geyser to the second floor. The cat is already up there."];
-N2[72]=["Up the geyser. Touch the doghouse. Come back down.", "Coming back down is the part nobody trained for."];
-N2[73]=["A cat parade. Fat cats on a treadmill. Do not feed them."];
-N2[74]=["The mailman works upstairs now. Overtime is not paid."];
-N2[75]=["Rainy day. Mailman. Ball. A reasonable combination."];
-N2[76]=["Rain. The floor is slippery. Brakes are a rumor.", "Plan your stops. Or do not. Spikes will remind you."];
-N2[77]=["Storm. Dogs and thunder: the oldest feud.", "When the sky flashes, brace yourself. You will run. Not your choice."];
-N2[78]=["Somebody left a firecracker. Somebody always does.", "Watch the spark. The bang is worse than the spark."];
-N2[79]=["New Year came early. For everyone but the dog.", "The rocket whistles first. Then the sky explodes. Then you panic."];
-N2[80]=["Wet floor. Thunder. Brakes still not included.", "When you panic on ice, you panic farther."];
-N2[81]=["Ice rink. Firecracker. Rocket. A very normal Tuesday.", "Slide into the bang. Or away from it. Hard to choose."];
-N2[82]=["The neighbors are celebrating. All of them. At once.", "Firecrackers and rockets. The dog files a complaint."];
-N2[83]=["Wind. Ice. Thunder. Fireworks. The doghouse moves.", "At this point the neighbors are calling the police. On you."];
-N2[84]=["Two hops, ice, wind, thunder and a rocket.", "I stopped counting. You should too."];
-N2[85]=["Bone lottery. Some win. Some do not. I will not name names."];
-N2[86]=["Fake doghouses in the dark. Choose wisely. Or do not."];
-N2[87]=["Windy. A bird. Your ears are doing their best."];
-N2[88]=["Wind, a cat and a doghouse that wants to go home.", "Going home is the dangerous part. Ask any dog."];
-N2[89]=["Wind. Wet floor. Thunder. Please enjoy responsibly.", "Brakes are for other dogs."];
-N2[90]=["Islands in the wind. The wind is not on your side. Neither is the cat."];
-N2[91]=["Water park. Slippery floor and a geyser. Wear a helmet. You are a dog."];
-N2[92]=["Wet floor. Doghouse. Easy.", "I said easy for the first half."];
-N2[93]=["Thunder, a doghouse that moves and a floor with a memory.", "Lightning hits behind you. Home is back there too."];
-N2[94]=["Wind, ice and a doghouse that wants to be elsewhere.", "The way back is slippery. The way back always is."];
-N2[95]=["Trust fall. The floor is not trustworthy. Neither am I."];
-N2[96]=["Elevator going up. Ceiling going down. Watch your head."];
-N2[97]=["Squirrel crossing. Look both ways. Then look up. Then at the squirrel anyway."];
-N2[98]=["Left, with a doghouse that lies. Left is still left."];
-N2[99]=["Left again. With a cat. And a rocket. And a doghouse that moves.", "I would say good luck. I would also say I am sorry."];
-N2[100]=["Left. Wet. Thunder behind you.", "Touch the doghouse. Then touch the doghouse. It will make sense."];
-N2[101]=["Left again. I know. I am sorry.", "A bang, a spike and a doghouse that likes to move."];
-N2[102]=["Two geysers. Over spikes. Time them like it is a dance."];
-N2[103]=["Ball. Cat. Both want your attention. Neither is nice about it."];
-N2[104]=["Balls, spikes and lightning. A normal afternoon.", "Fetch the doghouse. Ignore the sky."];
-N2[105]=["Rush hour. The mailman is late. The ceiling is early."];
-N2[106]=["Wind, a geyser and a spike. A normal Tuesday."];
-N2[107]=["Two mailmen. Overstaffed. They still miss the package."];
-N2[108]=["A mailman, a gale and a rocket. The usual route.", "Deliveries are delayed. So is your dignity."];
-N2[109]=["Wet floor. A cat. Slide into her and she will not be sorry."];
-N2[110]=["Moonlit snacks. Eat in the dark. What could be wrong with a bone you cannot see."];
-N2[111]=["A pit too wide for a jump. A geyser too eager to help."];
-N2[112]=["A geyser to go up. A firecracker to come down.", "You get used to the bang. The dog does not."];
-N2[113]=["Up the geyser. Thunder. Spikes on the way back.", "Going down is optional. Dying is not."];
-N2[114]=["Geyser, ice, wind and a doghouse that hops.", "Going up is easy. Coming down is a fall with opinions."];
-N2[115]=["The doghouse is on the left. You are on the right. Congratulations, you read the level."];
-N2[116]=["Floating islands, angry edition. I was nice before. I am done being nice."];
-N2[117]=["Almost there. Again. I told you it would happen again."];
-N2[118]=["The doghouse moves. Then it moves again. Then it multiplies.", "When there are four, one is telling the truth."];
-N2[119]=["It moves. You follow. The floor remembers.", "Every lap is a new lap. Every lap has spikes."];
-N2[120]=["The doghouse is musical. The sky is percussion.", "Four doghouses, one thunderstorm. A classic."];
-N2[121]=["Three hops. A fake doghouse. Wind. A firecracker.", "Nobody asked for this. Everybody will remember it."];
-N2[122]=["Chaos. Four noises. Two hops. One dog.", "This is the part where I admit I enjoy this."];
-N2[123]=["Hardcore mode. Everything is out to get you. Including me.", "Good luck. Seriously. You will need it."];
+N2[41]=["A bird. A doghouse that hops. A floor that waits.", "The bird has seen this before. It stays."];
+N2[42]=["Two birds, a rocket and a hopping doghouse.", "The birds are not scared. You should be."];
+N2[43]=["The cat is on a conveyor belt. I did not plan this. I just let it happen."];
+N2[44]=["A treadmill. A firecracker. A pit behind you.", "Run forward. Or do not. The belt has opinions."];
+N2[45]=["A treadmill, a wind and a doghouse that runs away.", "Coming back is harder. The belt remembers."];
+N2[46]=["The treadmill runs the other way. So does the doghouse.", "Run in place. Then run home."];
+N2[47]=["Treadmill, wind, thunder and a doghouse that hops.", "This is how a dog gets cardio."];
+N2[48]=["Squirrel season. Do not look at the tree. You will look at the tree."];
+N2[49]=["The doghouse is on the left again. I moved nothing. You are just wrong.", "Mind the floor. It has opinions."];
+N2[50]=["Wind. The forecast said gusts. The forecast was an optimist.", "Wait for a tailwind. Jump. Pretend it was skill."];
+N2[51]=["Floating islands. Do not look down. There is nothing nice down there.", "A cat, a ceiling and a lot of air. Up you go."];
+N2[52]=["A bird, a box, a gate. A normal Tuesday."];
+N2[53]=["Springs again. This time there is a cat upstairs. She was here first."];
+N2[54]=["Spring first. Rocket second. Dog third.", "Bounce responsibly."];
+N2[55]=["Spring up. Touch the doghouse. Spring down.", "A firecracker is up there. It was here first."];
+N2[56]=["Spring. Thunder. A doghouse that wants to move.", "Bounce, flinch, repeat."];
+N2[57]=["The mailman is behind the gate. He has been there since Monday."];
+N2[58]=["Button, crate, gate. And somebody lit a firecracker.", "Push the crate. Not the luck."];
+N2[59]=["Crates, ice and thunder. Push carefully.", "Crates do not scare. Dogs do."];
+N2[60]=["Stairs. Every step has an opinion. The cat has the loudest one."];
+N2[61]=["Bones on a conveyor belt. A sushi bar for dogs. Be careful what you grab."];
+N2[62]=["A geyser. Free elevator. It erupts when it feels like it.", "Wait for the splash. Then fly."];
+N2[63]=["Nothing here. Really. Run.", "I would never lie to you. Much."];
+N2[64]=["The doghouse is right there. Go on, touch it.", "Now run back. Look at the floor on your way home."];
+N2[65]=["Two floors, two balls. Somebody lost two balls. Probably the owner."];
+N2[66]=["A key, a puppy and a trap. I have run out of jokes. Not really."];
+N2[67]=["Key, lock, doghouse. And a floor with a surprise.", "You got the key. Great. Now go home. The long way."];
+N2[68]=["Left again. Run to the doghouse. Then turn around.", "I am not saying it will move. I am not saying it will not."];
+N2[69]=["Gale force wind. Hold on to your ears."];
+N2[70]=["Night. A squirrel. A pit. What could go wrong. Everything."];
+N2[71]=["Floating platforms. Squirrels. A ceiling. Everyone is invited."];
+N2[72]=["Three trees. Three squirrels. No traps. I swear on the bone.", "Those spikes? Decoration. Probably."];
+N2[73]=["Ice rink rules. Do not trust the brakes. There are none."];
+N2[74]=["Two doghouses. One is real. I will not say which."];
+N2[75]=["Stage fright. The squirrel is the audience. The ceiling is the critic."];
+N2[76]=["Left. Night. A squirrel and a ceiling. The usual."];
+N2[77]=["Geyser to the second floor. The cat is already up there."];
+N2[78]=["Up the geyser. Touch the doghouse. Come back down.", "Coming back down is the part nobody trained for."];
+N2[79]=["A cat parade. Fat cats on a treadmill. Do not feed them."];
+N2[80]=["The mailman works upstairs now. Overtime is not paid."];
+N2[81]=["Rainy day. Mailman. Ball. A reasonable combination."];
+N2[82]=["Rain. The floor is slippery. Brakes are a rumor.", "Plan your stops. Or do not. Spikes will remind you."];
+N2[83]=["Storm. Dogs and thunder: the oldest feud.", "When the sky flashes, brace yourself. You will run. Not your choice."];
+N2[84]=["Somebody left a firecracker. Somebody always does.", "Watch the spark. The bang is worse than the spark."];
+N2[85]=["New Year came early. For everyone but the dog.", "The rocket whistles first. Then the sky explodes. Then you panic."];
+N2[86]=["Wet floor. Thunder. Brakes still not included.", "When you panic on ice, you panic farther."];
+N2[87]=["Ice rink. Firecracker. Rocket. A very normal Tuesday.", "Slide into the bang. Or away from it. Hard to choose."];
+N2[88]=["The neighbors are celebrating. All of them. At once.", "Firecrackers and rockets. The dog files a complaint."];
+N2[89]=["Wind. Ice. Thunder. Fireworks. The doghouse moves.", "At this point the neighbors are calling the police. On you."];
+N2[90]=["Two hops, ice, wind, thunder and a rocket.", "I stopped counting. You should too."];
+N2[91]=["Bone lottery. Some win. Some do not. I will not name names."];
+N2[92]=["Fake doghouses in the dark. Choose wisely. Or do not."];
+N2[93]=["Windy. A bird. Your ears are doing their best."];
+N2[94]=["Wind, a cat and a doghouse that wants to go home.", "Going home is the dangerous part. Ask any dog."];
+N2[95]=["Wind. Wet floor. Thunder. Please enjoy responsibly.", "Brakes are for other dogs."];
+N2[96]=["Islands in the wind. The wind is not on your side. Neither is the cat."];
+N2[97]=["Water park. Slippery floor and a geyser. Wear a helmet. You are a dog."];
+N2[98]=["Wet floor. Doghouse. Easy.", "I said easy for the first half."];
+N2[99]=["Thunder, a doghouse that moves and a floor with a memory.", "Lightning hits behind you. Home is back there too."];
+N2[100]=["Wind, ice and a doghouse that wants to be elsewhere.", "The way back is slippery. The way back always is."];
+N2[101]=["Trust fall. The floor is not trustworthy. Neither am I."];
+N2[102]=["Elevator going up. Ceiling going down. Watch your head."];
+N2[103]=["Squirrel crossing. Look both ways. Then look up. Then at the squirrel anyway."];
+N2[104]=["A squirrel, a firecracker and a doghouse that hops.", "The squirrel will watch. The firecracker will not."];
+N2[105]=["Two squirrels, a rocket and a spike on the way home.", "Do not look up. Do not look down. Just run."];
+N2[106]=["Left, with a doghouse that lies. Left is still left."];
+N2[107]=["Left again. With a cat. And a rocket. And a doghouse that moves.", "I would say good luck. I would also say I am sorry."];
+N2[108]=["Left. Wet. Thunder behind you.", "Touch the doghouse. Then touch the doghouse. It will make sense."];
+N2[109]=["Left again. I know. I am sorry.", "A bang, a spike and a doghouse that likes to move."];
+N2[110]=["Two geysers. Over spikes. Time them like it is a dance."];
+N2[111]=["Ball. Cat. Both want your attention. Neither is nice about it."];
+N2[112]=["Balls, spikes and lightning. A normal afternoon.", "Fetch the doghouse. Ignore the sky."];
+N2[113]=["Balls on ice. The doghouse moves. The floor remembers.", "Fetch. Then fetch again. Then run."];
+N2[114]=["Balls, ice, a firecracker and a doghouse that hops.", "Brakes are for other dogs. Balls are for this dog."];
+N2[115]=["Rush hour. The mailman is late. The ceiling is early."];
+N2[116]=["Wind, a geyser and a spike. A normal Tuesday."];
+N2[117]=["Two mailmen. Overstaffed. They still miss the package."];
+N2[118]=["A mailman, a gale and a rocket. The usual route.", "Deliveries are delayed. So is your dignity."];
+N2[119]=["Wet floor. A cat. Slide into her and she will not be sorry."];
+N2[120]=["Moonlit snacks. Eat in the dark. What could be wrong with a bone you cannot see."];
+N2[121]=["A pit too wide for a jump. A geyser too eager to help."];
+N2[122]=["A geyser to go up. A firecracker to come down.", "You get used to the bang. The dog does not."];
+N2[123]=["Up the geyser. Thunder. Spikes on the way back.", "Going down is optional. Dying is not."];
+N2[124]=["Geyser, ice, wind and a doghouse that hops.", "Going up is easy. Coming down is a fall with opinions."];
+N2[125]=["The doghouse is on the left. You are on the right. Congratulations, you read the level."];
+N2[126]=["Floating islands, angry edition. I was nice before. I am done being nice."];
+N2[127]=["Almost there. Again. I told you it would happen again."];
+N2[128]=["The doghouse moves. Then it moves again. Then it multiplies.", "When there are four, one is telling the truth."];
+N2[129]=["It moves. You follow. The floor remembers.", "Every lap is a new lap. Every lap has spikes."];
+N2[130]=["The doghouse is musical. The sky is percussion.", "Four doghouses, one thunderstorm. A classic."];
+N2[131]=["Three hops. A fake doghouse. Wind. A firecracker.", "Nobody asked for this. Everybody will remember it."];
+N2[132]=["Chaos. Four noises. Two hops. One dog.", "This is the part where I admit I enjoy this."];
+N2[133]=["Hardcore mode. Everything is out to get you. Including me.", "Good luck. Seriously. You will need it."];
 NARR=N2;})();
 var WINLINES=['Level complete. I am as surprised as you are.','Look at you. A professional.','Treat? No. Moving on.','Not bad. For a dog.'];
 var MILE={5:'Five deaths. A personal record? Sure, let us say yes.',10:'Ten deaths. At this point it is a hobby.',25:'25 deaths. The cat is making popcorn.',50:'50 deaths. I am calling the vet. For me.',100:'100 deaths. Honestly, impressive.',150:'150 deaths. I have started naming the spikes. This one is Gary.',200:'200 deaths. You are not stubborn. You are a force of nature.',250:'250 deaths. At this point the doghouse should come to you.',300:'300 deaths. I am running out of sarcasm. Please stop. Do not stop.',400:'400 deaths. The dog has filed a complaint. It was rejected.',500:'500 deaths. Half a thousand. Frame this screen.',750:'750 deaths. The spikes know your name. They are fond of you.',1000:'1000 deaths. I have no words. Well, I have a few. None of them are kind.'};
@@ -929,7 +971,7 @@ function loadLevel(i,withCap,prefix){
 }
 function restart(){secReset();G=newState(Lcur);G.rec=true;initCrv();parts=[];fts=[];poops=[];splats=[];lastBones=0;hud();}
 function onDeath(){
-  deaths++;lvlD++;hud();save();deadT=0.55;shake=calm?0:1;attempts++;
+  deaths++;lvlD++;hud();save();achDeath(G.cause);deadT=0.55;shake=calm?0:1;attempts++;
   var p=G.p;
   for(var i=0;i<14;i++)parts.push({x:p.x+PW/2,y:p.y+PH/2,vx:(Math.random()-0.5)*8,vy:-Math.random()*8-2,life:1});
   sfxDeath(G.cause);
@@ -948,7 +990,7 @@ function nextLevel(){
     return;
   }
   if(lvlIndex===8&&!fakeShown&&!fakeSeen()){
-    fakeShown=true;try{localStorage.setItem('podlyi-dvor-fake','1');}catch(e){}
+    fakeShown=true;try{localStorage.setItem('podlyi-dvor-fake','1');}catch(e){}achUnlock('gullible');
     showSheet('YOU WIN!','Thanks for playing. Credits: you, the cat (reluctantly) and one very patient bone.','Yay!',function(){hideSheet();loadLevel(9,true,['Oh, you thought that was the end? Cute.']);});
     return;
   }
@@ -967,7 +1009,7 @@ function hideSheet(){sheetOpen=false;$('sheet').hidden=true;}
 function handleEvents(){
   var ev=G.ev;
   for(var i=0;i<ev.length;i++){
-    var e=ev[i];
+    var e=ev[i];achEvent(e);
     if(e==='jump'){sfx('jump');sayOnce('jump','Wow, you actually jumped. Brave.',2600);}
     else if(e==='bone'){sfx('bone');sayOnce('bone','Good boy. Do not read anything into it.',2600);}
     else if(e==='pop')sfx('pop');
@@ -1024,7 +1066,7 @@ function tick(){
     times[lvlIndex]=Math.round(lvlT*10)/10;lvlDs[lvlIndex]=lvlD;
     var nb=(bests[lvlIndex]==null||times[lvlIndex]<bests[lvlIndex]);if(nb)bests[lvlIndex]=times[lvlIndex];
     try{localStorage.setItem(BEST_KEY,JSON.stringify({lv:bests,total:bestTotal}));}catch(e){}
-    hud();save();
+    hud();save();achWin(lvlT,lvlD);
     showCap('Doghouse! '+fmtT(lvlT,true)+(nb&&bests.length>0&&lvlD>=0?'':'')+' \u00b7 Bones: '+G.bones+(G.bones>0?'. Good dog.':'.'),900);
     sfx('bark');sfx('win');
     var capN=LEVELS[lvlIndex].cap;
@@ -1357,6 +1399,7 @@ function drawSprinkler(tp,s,T,t){
 }
 function drawStorm(t,T){
   var L=Lcur,i,fl=0,dk=0;
+  if(G.p.scare>0){if(!achSc){achSc=true;AS.s.scares++;achDirty=true;achCheck();}}else achSc=false;
   for(i=0;i<L.traps.length;i++){
     var tp=L.traps[i],s=G.tr[i],ty=tp.type;
     if(ty!=='!'&&ty!=='*'&&ty!=='%')continue;
@@ -1479,7 +1522,7 @@ function drawBird(tp,s,T,t){
   ctx.fillStyle=K.bg;ctx.fillRect(X-T*0.24,Y-T*0.1,T*0.04,T*0.04);
   if(s.hold)drawBone(s.x-0.95,tp.y-0.12,T,t);
 }
-var GAGMAP={"Cat nap.":"catroof","Cat parade.":"catroof","Mail call.":"pack","Two mailmen.":"pack","SQUIRREL!":"squirrel","Squirrel crossing.":"squirrel","Treadmill.":"belt","Cat on the belt.":"belt","Bone bait.":"sign","Look up.":"ball","Boing.":"rocket","Old Faithful.":"splash","Treadmill panic.":"belt","Boing and boom.":"rocket","Geyser and bang.":"splash","Ball and thunder.":"ball","Storm elevator.":"splash","Slippery elevator.":"splash","Boing, then home.":"rocket","Mail in the wind.":"pack"};
+var GAGMAP={"Cat nap.":"catroof","Cat parade.":"catroof","Mail call.":"pack","Two mailmen.":"pack","SQUIRREL!":"squirrel","Squirrel crossing.":"squirrel","Treadmill.":"belt","Cat on the belt.":"belt","Bone bait.":"sign","Look up.":"ball","Boing.":"rocket","Old Faithful.":"splash","Treadmill panic.":"belt","Boing and boom.":"rocket","Geyser and bang.":"splash","Ball and thunder.":"ball","Storm elevator.":"splash","Slippery elevator.":"splash","Boing, then home.":"rocket","Mail in the wind.":"pack","Reverse treadmill.":"belt","Treadmill thunder.":"belt"};
 function gagOff(){
   var o={x:0,y:0};
   if(!gagFx||!G||!G.won)return o;
@@ -1801,13 +1844,14 @@ function fmtT(t,dec){
 function runTotal(){var t=0;for(var i=0;i<LEVELS.length;i++)t+=(times[i]||0);return t;}
 var statsText='';
 function showStats(){
+  achUnlock('gooddog');
   var tot=runTotal(),newBest=(!bestTotal||tot<bestTotal);
   var prev=bestTotal;
   if(newBest){bestTotal=Math.round(tot*10)/10;try{localStorage.setItem(BEST_KEY,JSON.stringify({lv:bests,total:bestTotal}));}catch(e){}}
   $('stSub').textContent='The cat kept the rest of the bones.';
   var sum=$('stSum');sum.textContent='';
   function chip(l,v){var d=document.createElement('span');d.appendChild(document.createTextNode(l+' '));var b=document.createElement('b');b.textContent=v;d.appendChild(b);sum.appendChild(d);}
-  chip('Time',fmtT(tot,true));chip('Deaths',deaths);chip('Bones',bonesTotal);chip('Secrets',secs.length+'/'+SECN);
+  chip('Time',fmtT(tot,true));chip('Deaths',deaths);chip('Bones',bonesTotal);chip('Secrets',secs.length+'/'+SECN);chip('Achievements',achCount()+'/'+ACH.length);
   if(prev&&!newBest)chip('Best',fmtT(prev,true));else if(newBest)chip('','New best!');
   var body=$('stBody');body.textContent='';
   var worstD=-1,worstI=-1;
@@ -1820,7 +1864,7 @@ function showStats(){
     body.appendChild(tr);
     if((lvlDs[i]||0)>worstD){worstD=lvlDs[i]||0;worstI=i;}
   }
-  statsText='Sneaky Yard \u{1F415}\nHome in '+fmtT(tot,true)+' · '+deaths+' deaths · '+bonesTotal+' bones \u00b7 '+secs.length+'/'+SECN+' secrets'+(worstI>=0&&worstD>0?'\nHardest yard: "'+LEVELS[worstI].cap+'" ('+worstD+' deaths)':'')+'\nPlay: https://t.me/sneaky_yard_game_bot/sneakyyard';
+  statsText='Sneaky Yard \u{1F415}\nHome in '+fmtT(tot,true)+' · '+deaths+' deaths · '+bonesTotal+' bones \u00b7 '+secs.length+'/'+SECN+' secrets \u00b7 '+achCount()+'/'+ACH.length+' achievements'+(worstI>=0&&worstD>0?'\nHardest yard: "'+LEVELS[worstI].cap+'" ('+worstD+' deaths)':'')+'\nPlay: https://t.me/sneaky_yard_game_bot/sneakyyard';
   sheetOpen=true;$('stats').hidden=false;try{$('stBody').parentNode.scrollTop=0;}catch(e){}
 }
 (function(){
@@ -1862,6 +1906,135 @@ function newGame(){
 
 
 var SECN=9,SECKEY='podlyi-dvor-secrets',secs=[],secSt={t:0,done:false},secFx=[];
+try{secs=JSON.parse(localStorage.getItem(SECKEY)||'[]')||[];}catch(e){secs=[];}
+var ACH=[
+ {id:'first',t:'First blood',d:'Die for the first time.',q:'Welcome to the club. We have spikes.',k:'deaths',n:1},
+ {id:'jumpy',t:'Jumpy',d:'Jump 100 times.',q:'One hundred jumps. The dog is warming up.',k:'jumps',n:100},
+ {id:'pogo',t:'Pogo dog',d:'Jump 1000 times.',q:'A thousand jumps. Somebody check the dog for springs.',k:'jumps',n:1000},
+ {id:'b100',t:'Bone collector',d:'Pick up 100 bones.',q:'Good dog. Do not read anything into it.',k:'bones',n:100},
+ {id:'b500',t:'Bone hoarder',d:'Pick up 500 bones.',q:'The cat is jealous. The cat is always jealous.',k:'bones',n:500},
+ {id:'bacon',t:'Bacon is a trap',d:'Die from a bad bone 5 times.',q:'If it smells like bacon, it is also a trap.',k:'badbone',n:5},
+ {id:'sc10',t:'Scaredy dog',d:'Get scared by a loud noise 10 times.',q:'It is only thunder. Probably.',k:'scares',n:10},
+ {id:'sc100',t:'Thunder buddy',d:'Get scared by a loud noise 100 times.',q:'You and the thunder are practically friends now.',k:'scares',n:100},
+ {id:'snoop',t:'Snoop',d:'Find your first secret.',q:'Curiosity killed the cat. The dog got a bone.',k:'secrets',n:1},
+ {id:'detective',t:'Detective',d:'Find all the secrets.',q:'Nothing escapes you. Except the doghouse.',k:'secrets',n:SECN},
+ {id:'d100',t:'Stubborn',d:'Die 100 times.',q:'One hundred deaths. Honestly, impressive.',k:'deaths',n:100},
+ {id:'d500',t:'Unstoppable',d:'Die 500 times.',q:'Half a thousand. Frame this screen.',k:'deaths',n:500},
+ {id:'cat10',t:'Catnapped',d:'Get caught by the cat 10 times.',q:'She was not even trying.',k:'cat',n:10},
+ {id:'clean10',t:'Clean paws',d:'Finish 10 levels without dying.',q:'Not a scratch. Suspicious.',k:'flawless',n:10},
+ {id:'clean50',t:'Spotless',d:'Finish 50 levels without dying.',q:'You are either very good or very lucky. Probably both.',k:'flawless',n:50},
+ {id:'zoom',t:'Zoomies',d:'Finish a level in under 2.5 seconds.',q:'Gone in a flash. The doghouse barely had time to blink.'},
+ {id:'hops25',t:'Runaway doghouse',d:'Watch the doghouse run away 25 times.',q:'It is not you. It is the doghouse.',k:'hops',n:25},
+ {id:'spr50',t:'Boing!',d:'Bounce on a spring 50 times.',q:'Dogs were born for this.',k:'springs',n:50},
+ {id:'w50',t:'Yard veteran',d:'Finish 50 levels.',q:'Fifty levels. The yard knows your name.',k:'wins',n:50},
+ {id:'w100',t:'Century',d:'Finish 100 levels.',q:'One hundred levels. Touch some grass. Or the doghouse.',k:'wins',n:100},
+ {id:'gullible',t:'Gullible',d:'Believe the fake YOU WIN screen.',q:'Oh, you thought that was the end? Cute.'},
+ {id:'gooddog',t:'Good dog',d:'Reach the end of the game.',q:'The cat kept the rest of the bones.'}
+];
+var ACHKEY='podlyi-dvor-ach',AS={s:{deaths:0,jumps:0,bones:0,badbone:0,scares:0,cat:0,flawless:0,hops:0,springs:0,wins:0},u:{}},achDirty=false,achSc=false,achQ=[],achBusy=false,achCloudAt=0;
+try{var a0=JSON.parse(localStorage.getItem(ACHKEY)||'null');if(a0&&a0.s)achMerge(a0);}catch(e){}
+function achMerge(o){
+  if(!o||!o.s)return;
+  for(var k in o.s){if(typeof o.s[k]==='number')AS.s[k]=Math.max(AS.s[k]||0,o.s[k]);}
+  if(o.u)for(var id in o.u){if(!AS.u[id])AS.u[id]=o.u[id];}
+}
+function achSave(force){
+  try{localStorage.setItem(ACHKEY,JSON.stringify(AS));}catch(e){}
+  var now=Date.now();
+  if(force||now-achCloudAt>8000){
+    achCloudAt=now;
+    try{var tg=window.Telegram&&window.Telegram.WebApp,cs=tg&&tg.CloudStorage;if(cs&&tg.isVersionAtLeast&&tg.isVersionAtLeast('6.9'))cs.setItem('ach',JSON.stringify(AS),function(){});}catch(e){}
+  }
+  achDirty=false;
+}
+function achCloudLoad(){
+  try{var tg=window.Telegram&&window.Telegram.WebApp,cs=tg&&tg.CloudStorage;
+    if(cs&&tg.isVersionAtLeast&&tg.isVersionAtLeast('6.9'))cs.getItem('ach',function(err,v){
+      if(err||!v)return;
+      try{achMerge(JSON.parse(v));achDirty=true;achCheck(true);achSave(true);}catch(e){}
+    });
+  }catch(e){}
+}
+function achCount(){var n=0;for(var i=0;i<ACH.length;i++)if(AS.u[ACH[i].id])n++;return n;}
+function achVal(a){return a.k==='secrets'?secs.length:(AS.s[a.k]||0);}
+function achToast(a){
+  achQ.push(a);if(achBusy)return;achBusy=true;
+  (function next(){
+    var a=achQ.shift();
+    if(!a){achBusy=false;return;}
+    var el=$('achToast');
+    if(!el){el=document.createElement('div');el.id='achToast';document.body.appendChild(el);}
+    el.textContent='';
+    var s1=document.createElement('small');s1.textContent='Achievement unlocked';
+    var b=document.createElement('b');b.textContent=a.t;
+    var sp=document.createElement('span');sp.textContent=a.q;
+    el.appendChild(s1);el.appendChild(b);el.appendChild(sp);
+    sfx('ding');
+    requestAnimationFrame(function(){el.classList.add('show');});
+    setTimeout(function(){el.classList.remove('show');setTimeout(next,350);},3300);
+  })();
+}
+function achUnlock(id){
+  if(AS.u[id])return;
+  for(var i=0;i<ACH.length;i++)if(ACH[i].id===id){
+    AS.u[id]=Date.now();achSave(true);achToast(ACH[i]);return;
+  }
+}
+function achCheck(quiet){
+  for(var i=0;i<ACH.length;i++){
+    var a=ACH[i];
+    if(AS.u[a.id]||!a.k)continue;
+    if(achVal(a)>=a.n){
+      if(quiet){AS.u[a.id]=Date.now();}else achUnlock(a.id);
+    }
+  }
+}
+function achEvent(e){
+  var k=null;
+  if(e==='jump')k='jumps';else if(e==='bone')k='bones';else if(e==='boing')k='springs';
+  else if(e==='hop1'||e==='hop2'||e==='hop3')k='hops';
+  if(!k)return;
+  AS.s[k]=(AS.s[k]||0)+1;achDirty=true;achCheck();
+}
+function achDeath(cause){
+  AS.s.deaths++;
+  if(cause==='bone')AS.s.badbone++;
+  if(cause==='cat')AS.s.cat++;
+  achDirty=true;achCheck();
+}
+function achWin(t,d){
+  AS.s.wins++;
+  if(d===0)AS.s.flawless++;
+  if(t<2.5)achUnlock('zoom');
+  achDirty=true;achCheck();achSave(false);
+}
+function achSecret(){achCheck();}
+setInterval(function(){if(achDirty)achSave(false);},5000);
+document.addEventListener('visibilitychange',function(){if(document.hidden&&achDirty)achSave(true);});
+window.addEventListener('pagehide',function(){if(achDirty)achSave(true);});
+function achRender(){
+  $('achSub').textContent=achCount()+' of '+ACH.length+' unlocked. Progress is saved on this device'+((window.Telegram&&window.Telegram.WebApp&&window.Telegram.WebApp.CloudStorage)?' and in your Telegram account.':'.');
+  var box=$('achList');box.textContent='';
+  for(var i=0;i<ACH.length;i++){
+    var a=ACH[i],on=!!AS.u[a.id];
+    var d=document.createElement('div');d.className='ach '+(on?'on':'off');
+    var ic=document.createElement('div');ic.className='ai';ic.textContent=on?'★':'·';
+    var tx=document.createElement('div');
+    var b=document.createElement('b');b.textContent=a.t;
+    var sp=document.createElement('span');sp.textContent=a.d;
+    tx.appendChild(b);tx.appendChild(sp);
+    if(!on&&a.k){var pr=document.createElement('span');var v=Math.min(achVal(a),a.n);pr.innerHTML='';var ii=document.createElement('i');ii.textContent=v+' / '+a.n;pr.appendChild(ii);tx.appendChild(pr);}
+    d.appendChild(ic);d.appendChild(tx);box.appendChild(d);
+  }
+}
+(function(){
+  var hb=$('hAch'),sh=$('achS'),hs=$('help');
+  if(hb)hb.addEventListener('click',function(){achRender();hs.hidden=true;sh.hidden=false;try{sh.scrollTop=0;}catch(e){}});
+  $('achClose').addEventListener('click',function(){sh.hidden=true;hs.hidden=false;});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!sh.hidden){sh.hidden=true;hs.hidden=false;}});
+})();
+achCloudLoad();
+
 var SEC={
  'Squirrel crossing.':{id:'sq1',k:'squirrel'},'Treehouse.':{id:'sq2',k:'squirrel'},
  'Just walk to the doghouse. What could go wrong?':{id:'wl1',k:'wall'},'Short one.':{id:'wl2',k:'wall'},'Intermission.':{id:'wl3',k:'wall'},
@@ -1876,7 +2049,7 @@ function secAward(def,sx,sy){
   G.bones++;sfx('bone');floatText('SECRET!',G.p.x+PW/2,G.p.y-0.6);
   secFx.push({k:'bone',sx:sx,sy:sy,age:0});
   if(secs.indexOf(def.id)<0){
-    secs.push(def.id);try{localStorage.setItem(SECKEY,JSON.stringify(secs));}catch(e){}
+    secs.push(def.id);try{localStorage.setItem(SECKEY,JSON.stringify(secs));}catch(e){}achSecret();
     var T={squirrel:'The squirrel dropped a bone. It was waiting for someone patient. Secret found.',wall:'You bonked a wall and a bone fell out. Nobody asked. Secret found.',cat:'The cat tipped a bone out of her fur. Do not ask where she keeps them. Secret found.',still:'A puppy lives in there. It was waiting for you to calm down. Secret found.'};
     narrate(T[def.k],3400);
   }
@@ -1892,7 +2065,7 @@ function secretTick(){
   }else if(def.k==='still'){
     if(!anyIn&&p.ground)secSt.t+=DT;else secSt.t=0;
     if(secSt.t>=10){secSt.done=true;secFx.push({k:'pup',age:0});G.bones++;sfx('bark');sfx('bone');
-      if(secs.indexOf(def.id)<0){secs.push(def.id);try{localStorage.setItem(SECKEY,JSON.stringify(secs));}catch(e){}narrate('A puppy lives in there. It was waiting for you to calm down. Secret found.',3400);}
+      if(secs.indexOf(def.id)<0){secs.push(def.id);try{localStorage.setItem(SECKEY,JSON.stringify(secs));}catch(e){}achSecret();narrate('A puppy lives in there. It was waiting for you to calm down. Secret found.',3400);}
       floatText('SECRET!',G.door.x+0.5,G.door.y-0.3);hud();}
   }else if(def.k==='squirrel'){
     if(!anyIn&&p.ground&&Math.abs(pcx-(G.door.x+0.5))<=3.8)secSt.t+=DT;else secSt.t=0;
