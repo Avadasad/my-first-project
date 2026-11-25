@@ -137,7 +137,7 @@ html,body{overscroll-behavior:none;touch-action:none}
 .tmr{font-family:var(--font-body);font-weight:700;font-size:15px;color:var(--muted);margin-left:10px;font-variant-numeric:tabular-nums;white-space:nowrap}
 @media (max-width:380px){.top .deaths b{font-size:14px}#deaths::before{margin-left:3px}.tmr{margin-left:5px;font-size:12px}.right{gap:3px}.hbtn.mute{width:31px;height:31px}}
 @media (max-width:520px){.top .lvl small{display:none}.tmr{font-size:13px;margin-left:7px}}
-.stcard{max-width:460px;max-height:100%;overflow:hidden;grid-template-rows:auto auto auto minmax(0,1fr) auto}
+.stcard{max-width:460px;max-height:100%;overflow:hidden;grid-template-rows:auto auto auto auto minmax(0,1fr) auto}
 .stcard h2{margin:0}
 .stsum{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:14px;color:var(--muted)}
 .stsum b{color:var(--accent);font-family:var(--font-body);font-variant-numeric:tabular-nums}
@@ -152,6 +152,8 @@ html,body{overscroll-behavior:none;touch-action:none}
 .sttab .bst{color:var(--accent);font-weight:700}
 .sec2{background:transparent;border:1px solid var(--sky-line);border-radius:10px;padding:11px;font-weight:700;color:var(--ink);width:100%;margin-top:8px}
 @media all{.top .deaths{font-size:0}.top .deaths b{font-size:17px}#bones::before,#deaths::before{font-size:12px;margin-right:3px;font-weight:400;color:var(--ink)}#bones::before{content:'\1F9B4'}#deaths::before{content:'\1F480';margin-left:8px}}
+.stach{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0;max-height:84px;overflow:auto}
+.achtag{font-size:12px;border:1px solid var(--accent);border-radius:999px;padding:3px 9px;color:var(--ink)}
 .achlist{display:grid;gap:8px}
 .ach{display:grid;grid-template-columns:30px 1fr;gap:10px;align-items:center;border:1px solid var(--sky-line);border-radius:10px;padding:9px 10px;background:transparent}
 .ach .ai{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;background:var(--sky-line);color:var(--muted)}
@@ -160,6 +162,7 @@ html,body{overscroll-behavior:none;touch-action:none}
 .ach span{display:block;font-size:13px;color:var(--muted);line-height:1.35}
 .ach.off{opacity:.62}
 .ach i{font-style:normal;color:var(--accent);font-weight:700}
+@media (max-height:480px){#stats .stcard{gap:6px;padding:12px 16px}#stTitle{font-size:20px}#stSub{font-size:13px}.stscroll{min-height:44px}.stach{max-height:46px;margin:2px 0}.achtag{font-size:11px;padding:2px 8px}.stsum{gap:4px 12px}}
 #achToast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 104px);transform:translate(-50%,-14px);opacity:0;transition:opacity .25s,transform .25s;z-index:18;pointer-events:none;background:var(--panel);color:var(--ink);border:1px solid var(--accent);border-radius:12px;padding:9px 14px;max-width:min(92vw,420px);box-shadow:0 6px 20px rgba(0,0,0,.35);text-align:center}
 #achToast.show{opacity:1;transform:translate(-50%,0)}
 #achToast small{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:700}
@@ -230,6 +233,7 @@ html,body{overscroll-behavior:none;touch-action:none}
     <h2 id="stTitle">You made it home!</h2>
     <p id="stSub" style="margin:0"></p>
     <div class="stsum" id="stSum"></div>
+    <div class="stach" id="stAch"></div>
     <div class="stscroll"><table class="sttab"><thead><tr><th>#</th><th>Level</th><th>Time</th><th>Died</th></tr></thead><tbody id="stBody"></tbody></table></div>
     <div class="stbtns"><button class="sec" id="stCopy" type="button">Copy result</button><button class="primary" id="stAgain" type="button">Play again</button></div>
   </div>
@@ -289,7 +293,7 @@ var LEVELS=[
  {cap:'Through the roof.',w:'cloud',rows:[WALL,'#.......D......#','#...======.....#','#....S.........#','#.=====........#',E,'#P.S.^^^^^^^^^.#',WALL,WALL]},
  {cap:'Intermission.',w:'dusk',rows:[WALL,E,E,E,E,'#.......b......#','#P............D#',WALL,WALL]},
  {cap:'Wrong way.',w:'wind',rows:[WALL,E,E,E,E,E,'#P...s.....c..D#','####<<<<<<<#####',WALL]},
- {cap:'Dark delivery.',w:'night',rows:[WALL,E,'#..........L...#','#..........L...#','#..........L...#','#.......K......#','#P..m..##..L.sD#',WALL,WALL]},
+ {cap:'Dark delivery.',w:'night',rows:[WALL,E,'#..........L...#','#..........L...#','#..........L...#','#.......K..L...#','#P..m..##..L.sD#',WALL,WALL]},
  {cap:'Puppy on the belt.',w:'dusk',rows:[WALL,E,E,E,E,E,'#Py..s....^^..D#','###>>>>>>>>>>###',WALL]},
  {cap:'Puppy and the gate.',w:'rain',rows:[WALL,E,E,'#........G.....#','#........G.....#','#........G.....#','#Py.x.u..G...sD#',WALL,WALL]},
  {cap:'Fetch!',w:'sun',rows:[WALL,E,E,E,E,E,'#P...Q.....Q..D#',WALL,WALL]},
@@ -315,16 +319,16 @@ var LEVELS=[
  {cap:'Thunder spring.',w:'cloud',rows:[WALL,'#...........D..#','#.........######','#....!n..S.....#','#....######....#',E,'#P.S.^^^^^^^^^.#',WALL,WALL]},
  {cap:'Gated mail.',w:'rain',rows:[WALL,E,E,'#........G.....#','#........G.....#','#........G.....#','#P.x.u...G.m..D#',WALL,WALL]},
  {cap:'Gate and bang.',w:'dusk',rows:[WALL,E,E,'#........G.....#','#........G.....#','#........G.....#','#P.x.u...G.*s.D#',WALL,WALL]},
- {cap:'Crates on ice.',w:'rain',rows:[WALL,'#i.............#',E,E,E,E,'#P..x..!..s.xD.#',WALL,WALL]},
- {cap:'Gate, hop, bang.',w:'dusk',rows:[WALL,E,E,'#........G.....#','#........G.....#','#........G.....#','#Pn.x.u.T.G.*.D#',WALL,WALL]},
+ {cap:'Ice and thunder.',w:'rain',rows:[WALL,'#i.............#',E,E,E,E,'#P.....s...!.D.#','#####^^^########',WALL]},
+ {cap:'Gate, hop, bang.',w:'dusk',rows:[WALL,E,E,'#........G.....#','#........G.....#','#........G.....#','#Pn.x.u.TG..*.D#',WALL,WALL]},
  {cap:'Staircase with opinions.',w:'sun',rows:[WALL,'#...........k..#',E,'#............D.#','#.......s..#####','#......###.#####','#P.c##.###.#####',WALL,WALL]},
  {cap:'Bones on the belt.',w:'sun',rows:[WALL,E,E,E,E,E,'#P..r...r.^^..D#','###>>>>>>>>#####',WALL]},
  {cap:'Old Faithful.',w:'sun',rows:[WALL,E,E,E,'#.......#......#','#.......#......#','#P...V..#..s.D.#',WALL,WALL]},
  {cap:'Almost there.',w:'sun',rows:[WALL,E,E,E,E,E,'#Pn.......b...D#',WALL,WALL]},
  {cap:'Return to sender.',w:'sun',rows:[WALL,E,E,E,E,E,'#P.n..T..T.b.D.#',WALL,WALL]},
  {cap:'Two floors, two balls.',w:'cloud',rows:[WALL,E,E,'#P.....Q.......#','###########....#',E,'#.D.....Q..s...#',WALL,WALL]},
- {cap:'Key to the puppy.',w:'dusk',rows:[WALL,E,'#..........L...#','#..........L...#','#..........L...#','#.......K......#','#Py.s..##..L.sD#',WALL,WALL]},
- {cap:'Locked out.',w:'dusk',rows:[WALL,E,'#..........L...#','#..........L...#','#.......K..L...#',E,'#P.n.T..*...L.D#',WALL,WALL]},
+ {cap:'Key to the puppy.',w:'dusk',rows:[WALL,E,'#..........L...#','#..........L...#','#..........L...#','#.......K..L...#','#Py.s..##..L.sD#',WALL,WALL]},
+ {cap:'Locked out.',w:'dusk',rows:[WALL,E,'#...........L..#','#...........L..#','#.......K...L..#','#...........L..#','#P.n.T..*...L.D#',WALL,WALL]},
  {cap:'Behind you.',w:'sun',rows:[WALL,E,E,E,E,E,'#D..s...c...P.n#',WALL,WALL]},
  {cap:'Gale force.',w:'rain',rows:[WALL,'#.......D......#','#...======.....#','#....S.........#','#.=====........#','#~.............#','#P.S.^^^^^^^^^.#',WALL,WALL]},
  {cap:'Night squirrel.',w:'night',rows:[WALL,E,E,E,E,'#......q.......#','#P..s.......s.D#','#########ff#####','#########^^#####']},
@@ -866,7 +870,7 @@ N2[57]=["Spring up. Touch the doghouse. Spring down.", "A firecracker is up ther
 N2[58]=["Spring. Thunder. A doghouse that wants to move.", "Bounce, flinch, repeat."];
 N2[59]=["The mailman is behind the gate. He has been there since Monday."];
 N2[60]=["Button, crate, gate. And somebody lit a firecracker.", "Push the crate. Not the luck."];
-N2[61]=["Crates, ice and thunder. Push carefully.", "Crates do not scare. Dogs do."];
+N2[61]=["Ice and thunder. The usual date night.", "Slide, flinch, repeat."];
 N2[62]=["Button, crate, gate, hop and a firecracker. Take your time.", "The doghouse moves after the gate. The gate does not care."];
 N2[63]=["Stairs. Every step has an opinion. The cat has the loudest one."];
 N2[64]=["Bones on a conveyor belt. A sushi bar for dogs. Be careful what you grab."];
@@ -1546,7 +1550,7 @@ function drawBird(tp,s,T,t){
   ctx.fillStyle=K.bg;ctx.fillRect(X-T*0.24,Y-T*0.1,T*0.04,T*0.04);
   if(s.hold)drawBone(s.x-0.95,tp.y-0.12,T,t);
 }
-var GAGMAP={"Cat nap.":"catroof","Cat parade.":"catroof","Mail call.":"pack","Two mailmen.":"pack","SQUIRREL!":"squirrel","Squirrel crossing.":"squirrel","Treadmill.":"belt","Cat on the belt.":"belt","Bone bait.":"sign","Look up.":"ball","Boing.":"rocket","Old Faithful.":"splash","Treadmill panic.":"belt","Boing and boom.":"rocket","Geyser and bang.":"splash","Ball and thunder.":"ball","Storm elevator.":"splash","Slippery elevator.":"splash","Boing, then home.":"rocket","Mail in the wind.":"pack","Reverse treadmill.":"belt","Treadmill thunder.":"belt","Geyser on the belt.":"splash","Gate, hop, bang.":"sign","Wet mail.":"pack","Mailmen on ice.":"pack","Squirrel with a grudge.":"squirrel","Bonk and boom.":"squirrel","Wrong way, wet and loud.":"ball","Wrong way, rocket.":"rocket","Island hop.":"splash","The cat and the bang.":"catroof"};
+var GAGMAP={"Cat nap.":"catroof","Cat parade.":"catroof","Mail call.":"pack","Two mailmen.":"pack","SQUIRREL!":"squirrel","Squirrel crossing.":"squirrel","Treadmill.":"belt","Cat on the belt.":"belt","Bone bait.":"sign","Look up.":"ball","Boing.":"rocket","Old Faithful.":"splash","Geyser on the belt.":"splash","Boing and boom.":"rocket","Gate, hop, bang.":"sign","Island hop.":"splash","Squirrel with a grudge.":"squirrel","Wrong way, rocket.":"rocket","Ball and thunder.":"ball","Mailmen on ice.":"pack","Geyser and bang.":"splash"};
 function gagOff(){
   var o={x:0,y:0};
   if(!gagFx||!G||!G.won)return o;
@@ -1875,7 +1879,7 @@ function showStats(){
   $('stSub').textContent='The cat kept the rest of the bones.';
   var sum=$('stSum');sum.textContent='';
   function chip(l,v){var d=document.createElement('span');d.appendChild(document.createTextNode(l+' '));var b=document.createElement('b');b.textContent=v;d.appendChild(b);sum.appendChild(d);}
-  chip('Time',fmtT(tot,true));chip('Deaths',deaths);chip('Bones',bonesTotal);chip('Secrets',secs.length+'/'+SECN);chip('Achievements',achCount()+'/'+ACH.length);
+  chip('Time',fmtT(tot,true));chip('Deaths',deaths);chip('Bones',bonesTotal);chip('Secrets',secs.length+'/'+SECN);chip('Achievements',achCount()+'/'+ACH.length);achRenderStats();
   if(prev&&!newBest)chip('Best',fmtT(prev,true));else if(newBest)chip('','New best!');
   var body=$('stBody');body.textContent='';
   var worstD=-1,worstI=-1;
@@ -1943,7 +1947,9 @@ var ACH=[
  {id:'snoop',t:'Snoop',d:'Find your first secret.',q:'Curiosity killed the cat. The dog got a bone.',k:'secrets',n:1},
  {id:'detective',t:'Detective',d:'Find all the secrets.',q:'Nothing escapes you. Except the doghouse.',k:'secrets',n:SECN},
  {id:'d100',t:'Stubborn',d:'Die 100 times.',q:'One hundred deaths. Honestly, impressive.',k:'deaths',n:100},
+ {id:'d250',t:'Dedicated',d:'Die 250 times.',q:'Two hundred and fifty. The doghouse is starting to feel guilty.',k:'deaths',n:250},
  {id:'d500',t:'Unstoppable',d:'Die 500 times.',q:'Half a thousand. Frame this screen.',k:'deaths',n:500},
+ {id:'d1000',t:'Legend',d:'Die 1000 times.',q:'One thousand. The spikes want to take a photo with you.',k:'deaths',n:1000},
  {id:'cat10',t:'Catnapped',d:'Get caught by the cat 10 times.',q:'She was not even trying.',k:'cat',n:10},
  {id:'clean10',t:'Clean paws',d:'Finish 10 levels without dying.',q:'Not a scratch. Suspicious.',k:'flawless',n:10},
  {id:'clean50',t:'Spotless',d:'Finish 50 levels without dying.',q:'You are either very good or very lucky. Probably both.',k:'flawless',n:50},
@@ -2021,7 +2027,7 @@ function achEvent(e){
   AS.s[k]=(AS.s[k]||0)+1;achDirty=true;achCheck();
 }
 function achDeath(cause){
-  AS.s.deaths++;
+  AS.s.deaths=Math.max(AS.s.deaths+1,deaths);
   if(cause==='bone')AS.s.badbone++;
   if(cause==='cat')AS.s.cat++;
   achDirty=true;achCheck();
@@ -2036,6 +2042,12 @@ function achSecret(){achCheck();}
 setInterval(function(){if(achDirty)achSave(false);},5000);
 document.addEventListener('visibilitychange',function(){if(document.hidden&&achDirty)achSave(true);});
 window.addEventListener('pagehide',function(){if(achDirty)achSave(true);});
+function achRenderStats(){
+  var el=$('stAch');if(!el)return;el.textContent='';
+  var n=0;
+  for(var i=0;i<ACH.length;i++)if(AS.u[ACH[i].id]){n++;var s=document.createElement('span');s.className='achtag';s.textContent='\u2605 '+ACH[i].t;el.appendChild(s);}
+  if(!n){var e=document.createElement('span');e.className='achtag';e.textContent='No achievements yet';el.appendChild(e);}
+}
 function achRender(){
   $('achSub').textContent=achCount()+' of '+ACH.length+' unlocked. Progress is saved on this device'+((window.Telegram&&window.Telegram.WebApp&&window.Telegram.WebApp.CloudStorage)?' and in your Telegram account.':'.');
   var box=$('achList');box.textContent='';
