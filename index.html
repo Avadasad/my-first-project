@@ -177,7 +177,7 @@ html,body{overscroll-behavior:none;touch-action:none}
   .deaths{font-size:12px}.deaths b{font-size:18px}
   .right{gap:6px}.mute{width:34px;height:34px}
 }
-@media (orientation:portrait){
+@media (orientation:portrait) and (max-device-width:700px){
   body{padding-bottom:max(8px,env(safe-area-inset-bottom,0px))}
   .rot{display:block;position:absolute;left:0;right:0;top:42%;text-align:center;color:var(--muted);font-size:14px;padding:0 24px;pointer-events:none}
 }
@@ -403,6 +403,9 @@ var LEVELS=[
  {cap:'Musical thunder.',w:'rain',rows:[WALL,E,E,E,E,E,'#P2.D.!H.3sH.H1#',WALL,WALL]},
  {cap:'Triple hop, triple trouble.',w:'wind',rows:[WALL,'#~.............#',E,E,E,E,'#P1.T.*..T2.H.D#',WALL,WALL]},
  {cap:'Perfect chaos.',w:'wind',rows:[WALL,'#~i............#',E,E,E,E,'#P1.!.T.*.2.%H.D',WALL,WALL]},
+ {cap:'Penthouse key.',w:'dusk',rows:[WALL,'#..........L...#','#..........L...#','#..........L.D.#','#......#########',E,'#P.nV..K.T.s.!.#',WALL,WALL]},
+ {cap:'Wind on the belt.',w:'wind',rows:[WALL,'#~i............#',E,E,E,E,'#P1.T..2..!...D#','###>>>>>>>>>####',WALL]},
+ {cap:'Locked in the storm.',w:'rain',rows:[WALL,'#~i..........L.#','#............L.#','#............L.#','#............L.#','#............L.#','#P.nT.s.!..K.LD#',WALL,WALL]},
  {cap:'Hardcore. You were warned.',w:'night',rows:[WALL,E,E,E,E,'#.....q.....q..#','#P.s........c.D#','#####ff###ff####','#####^^###^^####']},
  {cap:'Last yard. Everything at once.',w:'dusk',rows:[WALL,'#..........k...#',E,E,'#.......r......#',E,'#P.o..s...rc.XD#','#######ff#######','#######^^#######']}
 ];
@@ -843,7 +846,7 @@ var NARR={
   34:['Puppy and the gate. Teamwork. Mostly yours.'],
   35:['Last one. Everything at once. I believe in you. Slightly.']
 };
-(function(){var N2={},OLD=[11, 21, 31, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35];Object.keys(NARR).forEach(function(k){k=+k;var sh=0;OLD.forEach(function(p){if(p<=k)sh++;});N2[k+sh]=NARR[k];});
+(function(){var N2={},OLD=[11, 21, 31, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35];Object.keys(NARR).forEach(function(k){k=+k;var sh=0;OLD.forEach(function(p){if(p<=k)sh++;});N2[k+sh]=NARR[k];});
 N2[11]=['Nothing here. I checked twice.','No spikes. No cats. I am suspicious too.','Just enjoy the walk. Smell something.'];
 N2[22]=['I made this one short. Do not thank me.','The mailman is on a break. So am I.'];
 N2[33]=['Intermission. Please return to your seats.','Buy a bone in the lobby. Dogs eat free.','Okay, enough. Back to work.'];
@@ -954,7 +957,10 @@ N2[141]=["It moves. You follow. The floor remembers.", "Every lap is a new lap. 
 N2[142]=["The doghouse is musical. The sky is percussion.", "Four doghouses, one thunderstorm. A classic."];
 N2[143]=["Three hops. A fake doghouse. Wind. A firecracker.", "Nobody asked for this. Everybody will remember it."];
 N2[144]=["Chaos. Four noises. Two hops. One dog.", "This is the part where I admit I enjoy this."];
-N2[145]=["Hardcore mode. Everything is out to get you. Including me.", "Good luck. Seriously. You will need it."];
+N2[145]=["A key, a lock, a geyser, thunder and a doghouse that hops.", "Fetch the key. Fly up. Then run all the way back."];
+N2[146]=["Ice, wind, a belt, thunder and two hops. You wanted hard."];
+N2[147]=["Ice, wind, a lock, thunder and a floor with a memory.", "The key is in the middle. The doghouse is not."];
+N2[148]=["Hardcore mode. Everything is out to get you. Including me.", "Good luck. Seriously. You will need it."];
 NARR=N2;})();
 var WINLINES=['Level complete. I am as surprised as you are.','Look at you. A professional.','Treat? No. Moving on.','Not bad. For a dog.'];
 var MILE={5:'Five deaths. A personal record? Sure, let us say yes.',10:'Ten deaths. At this point it is a hobby.',25:'25 deaths. The cat is making popcorn.',50:'50 deaths. I am calling the vet. For me.',100:'100 deaths. Honestly, impressive.',150:'150 deaths. I have started naming the spikes. This one is Gary.',200:'200 deaths. You are not stubborn. You are a force of nature.',250:'250 deaths. At this point the doghouse should come to you.',300:'300 deaths. I am running out of sarcasm. Please stop. Do not stop.',400:'400 deaths. The dog has filed a complaint. It was rejected.',500:'500 deaths. Half a thousand. Frame this screen.',750:'750 deaths. The spikes know your name. They are fond of you.',1000:'1000 deaths. I have no words. Well, I have a few. None of them are kind.'};
